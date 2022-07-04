@@ -64,7 +64,9 @@ def hybrid_time_steps(data, separate=True, split = 0.5, encoding1="latency", enc
         else:
             print("2")
 
-    return(torch.cat((torch.Tensor(encoding1_data), torch.Tensor(encoding2_data))))
+    spike_data = torch.stack([encoding1_data, encoding2_data], dim=0)
+    
+    return spike_data
 
 
 def rate(
