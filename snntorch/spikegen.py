@@ -1,6 +1,62 @@
 import torch
+import math
 
 dtype = torch.float
+
+def make_zeros(data, time_step):
+    torch.cat(
+                (
+                    torch.zeros(
+                        time_step,
+                        device=device,
+                        dtype=dtype,
+                    ),
+                    torch.zeros_like(data),
+                )
+            )
+
+def hybrid_time_steps(data, separate=True, split = 0.5, encoding1="latency", encoding2="rate", num_steps=False, time_var_input=False, tau=1, 
+    threshold=0.01,clip=False, linear=False, interpolate=False, gain=1):
+    #Hello darkness my old friend
+    """Hybrid encoding scheme of input data, using different encoding method at different time-steps based
+    """
+    device = data.device
+    data_split = 0
+
+    if num_steps:
+        data_split = [math.floor(split * num_steps), math.ceil(split * num_steps)]
+    else:
+        data_split = [math.floor(split * data.size(0)), math.ceil(split * data.size(0))]
+
+    if separate:
+        if encoding1 == "latency":
+            encoding1_data = latency(data, num_steps=num_steps, normalize=True, linear=linear, tau=tau, interpolate=interpolate, clip=clip, threshold=threshold)
+        elif encoding2 == "rate":
+            encoding2_data = rate(data, num_steps=num_steps, gain=gain)
+        else:
+            print("Encoding method not recognised")
+
+        if encoding2 == "latency":
+            #test
+        elif encoding2 == "rate":
+            #test
+        else:
+            print("Encoding method not recognised")
+    else:
+        # Treat them as continuations
+        if encoding1 == "latency":
+            #test
+        elif encoding1 == "rate":
+            #test
+        else:
+            #test
+
+        if encoding2 == "latency":
+            #test
+        elif encoding2 == "rate":
+            #test
+        else:
+            #test
 
 
 def rate(
