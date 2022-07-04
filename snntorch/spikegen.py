@@ -28,20 +28,21 @@ def hybrid_time_steps(data, separate=True, split = 0.5, encoding1="latency", enc
     else:
         data_split = [math.floor(split * data.size(0)), math.ceil(split * data.size(0))]
 
+        print(data_split[0])
+        print(data_split[1])
+
     if separate:
         if encoding1 == "latency":
             encoding1_data = latency(data, num_steps=num_steps, normalize=True, linear=linear, tau=tau, interpolate=interpolate, clip=clip, threshold=threshold)
-        elif encoding2 == "rate":
-            encoding2_data = rate(data, num_steps=num_steps, gain=gain)
+        elif encoding1 == "rate":
+            encoding1_data = rate(data, num_steps=num_steps, gain=gain)
         else:
             print("Encoding method not recognised")
 
         if encoding2 == "latency":
-            #test
-            print("O")
+            encoding2_data = latency(data, num_steps=num_steps, normalize=True, linear=linear, tau=tau, interpolate=interpolate, clip=clip, threshold=threshold)
         elif encoding2 == "rate":
-            #test
-            print("O")
+            encoding2_data = rate(data, num_steps=num_steps, gain=gain)
         else:
             print("Encoding method not recognised")
     else:
