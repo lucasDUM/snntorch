@@ -38,25 +38,33 @@ def hybrid_time_steps(data, separate=True, split = 0.5, encoding1="latency", enc
 
         if encoding2 == "latency":
             #test
+            break
         elif encoding2 == "rate":
             #test
+            break
         else:
             print("Encoding method not recognised")
     else:
         # Treat them as continuations
         if encoding1 == "latency":
             #test
+            break
         elif encoding1 == "rate":
             #test
+            break
         else:
             #test
+            break
 
         if encoding2 == "latency":
             #test
+            break
         elif encoding2 == "rate":
             #test
+            break
         else:
             #test
+            break
 
 
 def rate(
