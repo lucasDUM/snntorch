@@ -28,6 +28,9 @@ def hybrid_time_steps(data, separate=True, split = 0.5, encoding1="latency", enc
     else:
         data_split = [math.floor(split * data.size(0)), math.ceil(split * data.size(0))]
 
+    encoding1_data = make_zeros(data, data_split[0])
+    encoding2_data = make_zeros(data, data_split[1])
+
     print(data_split[0])
     print(data_split[1])
 
