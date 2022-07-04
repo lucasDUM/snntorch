@@ -31,8 +31,8 @@ def hybrid_time_steps(data, separate=True, split = 0.5, encoding1="latency", enc
     #encoding1_data = make_zeros(data, data_split[0])
     #encoding2_data = make_zeros(data, data_split[1])
 
-    print(data_split[0])
-    print(data_split[1])
+    #print(data_split[0])
+    #print(data_split[1])
 
     if separate:
         if encoding1 == "latency":
@@ -64,7 +64,7 @@ def hybrid_time_steps(data, separate=True, split = 0.5, encoding1="latency", enc
         else:
             print("2")
 
-    spike_data = torch.stack([encoding1_data, encoding2_data], dim=0)
+    spike_data = torch.cat([encoding1_data, encoding2_data])
 
     return spike_data
 
