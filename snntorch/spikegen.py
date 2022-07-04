@@ -51,26 +51,20 @@ def hybrid_time_steps(data, separate=True, split = 0.5, encoding1="latency", enc
     else:
         # Treat them as continuations
         if encoding1 == "latency":
-            #test
             print("1")
         elif encoding1 == "rate":
-            #test
             print("1")
         else:
-            #test
             print("1")
 
         if encoding2 == "latency":
-            #test
             print("2")
         elif encoding2 == "rate":
-            #test
             print("2")
         else:
-            #test
             print("2")
 
-    return(torch.cat((encoding1_data, encoding2_data), 0))
+    return(torch.cat((torch.Tensor(encoding1_data), torch.Tensor(encoding2_data))))
 
 
 def rate(
