@@ -66,6 +66,8 @@ def hybrid_time_steps(data, separate=True, split = 0.5, encoding1="latency", enc
             #test
             print("O")
 
+    return(torch.cat(encoding1_data, encoding2_data))
+
 
 def rate(
     data, num_steps=False, gain=1, offset=0, first_spike_time=0, time_var_input=False
