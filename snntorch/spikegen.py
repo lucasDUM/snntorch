@@ -15,11 +15,11 @@ def make_zeros(data, time_step):
                 )
             )
 
-def hybrid_time_steps(data, separate=True, split = 0.5, encoding1="latency", encoding2="rate", num_steps=False, time_var_input=False, tau=1, 
+def hybrid_encoding(data, separate=True, split = 0.5, encoding1="latency", encoding2="rate", num_steps=False, time_var_input=False, tau=1, 
     threshold=0.01,clip=False, linear=False, interpolate=False, gain=1):
-    #Hello darkness my old friend
     """Hybrid encoding scheme of input data, using different encoding method at different time-steps based
     """
+
     device = data.device
     data_split = 0
 
@@ -28,13 +28,9 @@ def hybrid_time_steps(data, separate=True, split = 0.5, encoding1="latency", enc
     else:
         data_split = [math.floor(split * data.size(0)), math.ceil(split * data.size(0))]
 
-    #encoding1_data = make_zeros(data, data_split[0])
-    #encoding2_data = make_zeros(data, data_split[1])
-
-    #print(data_split[0])
-    #print(data_split[1])
-
     if separate:
+        # Treat them as if they are both seperate
+
         if encoding1 == "latency":
             encoding1_data = latency(data, num_steps=data_split[0], normalize=True, linear=linear, tau=tau, interpolate=interpolate, clip=clip, threshold=threshold)
         elif encoding1 == "rate":
@@ -50,21 +46,22 @@ def hybrid_time_steps(data, separate=True, split = 0.5, encoding1="latency", enc
             print("Encoding method not recognised")
     else:
         # Treat them as continuations
+
         if encoding1 == "latency":
-            print("1")
+            encoding1_data = latency(data, num_steps=data_split[0], normalize=True, linear=linear, tau=tau, interpolate=interpolate, clip=clip, threshold=threshold)
         elif encoding1 == "rate":
-            print("1")
+            encoding1_data = rate(data, num_steps=data_split[0], gain=gain)
         else:
-            print("1")
+            print("Encoding method not recognised")
 
         if encoding2 == "latency":
-            print("2")
+            encoding2_data = latency(data, num_steps=data.size(0), normalize=True, linear=linear, tau=tau, interpolate=interpolate, clip=clip, threshold=threshold)[data_split[1]:]
         elif encoding2 == "rate":
-            print("2")
+            encoding2_data = rate(data, num_steps=data_split[1], gain=gain)
         else:
-            print("2")
+            print("Encoding method not recognised")
 
-    spike_data = torch.cat([encoding1_data, encoding2_data])
+    spike_data = torch.cat([encoding1_data, encoding2_data], dim=0)
 
     return spike_data
 
