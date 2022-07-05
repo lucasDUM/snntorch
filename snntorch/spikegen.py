@@ -1,69 +1,72 @@
 import torch
 import math
+# Add phase encoding and also phase reweighting scheme migh be fun:)
+# Burst weighting as well 
+# PSP or the current injection
 
 dtype = torch.float
 
-def make_zeros(data, time_step):
-    torch.cat(
-                (
-                    torch.zeros(
-                        time_step,
-                        device=device,
-                        dtype=dtype,
-                    ),
-                    torch.zeros_like(data),
-                )
-            )
+def find_splits(splits, step):
+    temp = []
+    total_list = [math.ceil(a * step) for a in splits] + [math.floor(a * step) for a in splits]
+    for subset in itertools.combinations(total_list, len(splits)):
+        if sum(subset) == step:
+            temp = subset
+            break
+    return temp
 
-def hybrid_encoding(data, separate=True, split = 0.5, encoding1="latency", encoding2="rate", num_steps=False, time_var_input=False, tau=1, 
+def switch(splits):
+    
+
+def hybrid_encoding(data, separate=True, splits = [0.5, 0.5], encodings=["latency", "rate"], num_steps=False, time_var_input=False, tau=1, 
     threshold=0.01,clip=False, linear=False, interpolate=False, gain=1):
     """Hybrid encoding scheme of input data, using different encoding method at different time-steps based
     """
+    if len(splits) != len(encodings):
+        raise Exception("Number of encodings does not match splits given")
+
+    if sum(splits) != 1:
+        raise Exception("Splits do not sum to 1")
 
     device = data.device
-    data_split = 0
 
     if num_steps:
-        data_split = [math.floor(split * num_steps), math.ceil(split * num_steps)]
+        data_splits = find_splits(splits, num_steps)
+        #encoding_data = torch.zeros([num_steps]+list(data.size()))
     else:
-        data_split = [math.floor(split * data.size(0)), math.ceil(split * data.size(0))]
+        data_splits = find_splits(splits, data.size(0))
+        #encoding_data = torch.zeros(list(data.size()))
+
+    high_count = data_splits[0]
 
     if separate:
         # Treat them as if they are both seperate
-
-        if encoding1 == "latency":
-            encoding1_data = latency(data, num_steps=data_split[0], normalize=True, linear=linear, tau=tau, interpolate=interpolate, clip=clip, threshold=threshold)
-        elif encoding1 == "rate":
-            encoding1_data = rate(data, num_steps=data_split[0], gain=gain)
-        else:
-            print("Encoding method not recognised")
-
-        if encoding2 == "latency":
-            encoding2_data = latency(data, num_steps=data_split[1], normalize=True, linear=linear, tau=tau, interpolate=interpolate, clip=clip, threshold=threshold)
-        elif encoding2 == "rate":
-            encoding2_data = rate(data, num_steps=data_split[1], gain=gain)
-        else:
-            print("Encoding method not recognised")
+        for steps in range(len(splits))
+            if encodings[steps] == "latency":
+                temp = latency(data, num_steps=data_split[steps], normalize=True, linear=linear, tau=tau, interpolate=interpolate, clip=clip, threshold=threshold)
+            elif encodings[steps] == "rate":
+                temp = rate(data, num_steps=data_split[steps], gain=gain)
+            else:
+                print("Encoding method not recognised")
+            encoding_data = torch.cat(temp)
     else:
         # Treat them as continuations
-
-        if encoding1 == "latency":
-            encoding1_data = latency(data, num_steps=data_split[0], normalize=True, linear=linear, tau=tau, interpolate=interpolate, clip=clip, threshold=threshold)
-        elif encoding1 == "rate":
-            encoding1_data = rate(data, num_steps=data_split[0], gain=gain)
-        else:
-            print("Encoding method not recognised")
-
-        if encoding2 == "latency":
-            encoding2_data = latency(data, num_steps=num_steps, normalize=True, linear=linear, tau=tau, interpolate=interpolate, clip=clip, threshold=threshold)[data_split[1]:]
-        elif encoding2 == "rate":
-            encoding2_data = rate(data, num_steps=data_split[1], gain=gain)
-        else:
-            print("Encoding method not recognised")
-
-    spike_data = torch.cat([encoding1_data, encoding2_data], dim=0)
-
-    return spike_data
+        for steps in range(len(splits))
+            if encodings[steps] == "latency":
+                try:
+                    low_count = data_split[steps]
+                    high_count += data_split[steps+1]
+                    temp = latency(data, num_steps=num_steps, normalize=True, linear=linear, tau=tau, interpolate=interpolate, clip=clip, threshold=threshold)[low_count:high_count]
+                except:
+                    temp = latency(data, num_steps=num_steps, normalize=True, linear=linear, tau=tau, interpolate=interpolate, clip=clip, threshold=threshold)[low_count:]
+            elif encodings[steps] == "rate":
+                temp = rate(data, num_steps=data_split[steps], gain=gain)
+            else:
+                print("Encoding method not recognised")
+            high_count = 0
+            encoding_data = torch.cat(temp)
+            
+    return encoding_data
 
 
 def rate(
