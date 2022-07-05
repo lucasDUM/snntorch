@@ -46,7 +46,7 @@ def hybrid_encoding(data, separate=True, splits = [0.5, 0.5], encodings=["latenc
                 temp = rate(data, num_steps=data_split[steps], gain=gain)
             else:
                 print("Encoding method not recognised")
-            encoding_data = torch.cat((encoding_data, temp))
+            encoding_data = torch.cat((torch.tensor([]), temp))
     else:
         # Treat them as continuations
         for steps in range(len(splits)):
@@ -62,7 +62,7 @@ def hybrid_encoding(data, separate=True, splits = [0.5, 0.5], encodings=["latenc
             else:
                 print("Encoding method not recognised")
             high_count = 0
-            encoding_data = torch.cat((encoding_data, temp))
+            encoding_data = torch.cat((torch.tensor([]), temp))
 
     return encoding_data
 
