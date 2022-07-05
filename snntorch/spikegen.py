@@ -8,11 +8,17 @@ import itertools
 dtype = torch.float
 
 def find_splits(splits, step):
+    print("Ths is stepp")
+    print(step)
     temp = []
     total_list = [math.ceil(a * step) for a in splits] + [math.floor(a * step) for a in splits]
     for subset in itertools.combinations(total_list, len(splits)):
+        print("Ths is sum")
+        print(sum(subset))
         if sum(subset) == step:
             temp = subset
+            print("Ths is temp")
+            print(temp)
             break
     return temp
 
