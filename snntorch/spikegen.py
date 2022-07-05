@@ -55,7 +55,7 @@ def hybrid_encoding(data, separate=True, split = 0.5, encoding1="latency", encod
             print("Encoding method not recognised")
 
         if encoding2 == "latency":
-            encoding2_data = latency(data, num_steps=data.size(0), normalize=True, linear=linear, tau=tau, interpolate=interpolate, clip=clip, threshold=threshold)[data_split[1]:]
+            encoding2_data = latency(data, num_steps=num_steps, normalize=True, linear=linear, tau=tau, interpolate=interpolate, clip=clip, threshold=threshold)[data_split[1]:]
         elif encoding2 == "rate":
             encoding2_data = rate(data, num_steps=data_split[1], gain=gain)
         else:
