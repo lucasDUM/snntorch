@@ -35,7 +35,7 @@ def hybrid_encoding(data, separate=True, splits = [0.5, 0.5], encodings=["latenc
         data_split = find_splits(splits, data.size(0))
         #encoding_data = torch.zeros(list(data.size()))
 
-    high_count = data_splits[0]
+    high_count = data_split[0]
 
     if separate:
         # Treat them as if they are both seperate
