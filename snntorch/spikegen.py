@@ -29,10 +29,10 @@ def hybrid_encoding(data, separate=True, splits = [0.5, 0.5], encodings=["latenc
     device = data.device
 
     if num_steps:
-        data_splits = find_splits(splits, num_steps)
+        data_split = find_splits(splits, num_steps)
         #encoding_data = torch.zeros([num_steps]+list(data.size()))
     else:
-        data_splits = find_splits(splits, data.size(0))
+        data_split = find_splits(splits, data.size(0))
         #encoding_data = torch.zeros(list(data.size()))
 
     high_count = data_splits[0]
