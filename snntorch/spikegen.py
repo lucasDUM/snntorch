@@ -52,18 +52,17 @@ def hybrid_encoding(data, separate=True, splits = [0.5, 0.5], encodings=["latenc
     else:
         # Treat them as continuations
         for steps in range(len(splits)):
+            high_count += data_split[steps]
             if encodings[steps] == "latency":
-                high_count += data_split[steps]
                 temp = latency(data, num_steps=num_steps, normalize=True, linear=linear, tau=tau, interpolate=interpolate, clip=clip, threshold=threshold)[low_count:high_count]
-                low_count += data_split[steps] 
             elif encodings[steps] == "rate":
                 temp = rate(data, num_steps=data_split[steps], gain=gain)
             else:
                 print("Encoding method not recognised")
-            low_count = 0
-            high_count = 0
+            low_count += data_split[steps] 
             encoding_data = torch.cat((encoding_data, temp))
-
+        low_count = 0
+        high_count = 0
     return encoding_data
 
 
