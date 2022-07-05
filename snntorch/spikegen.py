@@ -20,6 +20,9 @@ def hybrid_encoding(data, separate=True, splits = [0.5, 0.5], encodings=["latenc
     threshold=0.01,clip=False, linear=False, interpolate=False, gain=1):
     """Hybrid encoding scheme of input data, using different encoding method at different time-steps based
     """
+    print(len(splits))
+    prin(len(encodings))
+
     if len(splits) != len(encodings):
         raise Exception("Number of encodings does not match splits given")
 
