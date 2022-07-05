@@ -15,9 +15,6 @@ def find_splits(splits, step):
             break
     return temp
 
-def switch(splits):
-    
-
 def hybrid_encoding(data, separate=True, splits = [0.5, 0.5], encodings=["latency", "rate"], num_steps=False, time_var_input=False, tau=1, 
     threshold=0.01,clip=False, linear=False, interpolate=False, gain=1):
     """Hybrid encoding scheme of input data, using different encoding method at different time-steps based
@@ -65,7 +62,7 @@ def hybrid_encoding(data, separate=True, splits = [0.5, 0.5], encodings=["latenc
                 print("Encoding method not recognised")
             high_count = 0
             encoding_data = torch.cat(temp)
-            
+
     return encoding_data
 
 
