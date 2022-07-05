@@ -38,7 +38,7 @@ def hybrid_encoding(data, separate=True, splits = [0.5, 0.5], encodings=["latenc
 
     if separate:
         # Treat them as if they are both seperate
-        for steps in range(len(splits))
+        for steps in range(len(splits)):
             if encodings[steps] == "latency":
                 temp = latency(data, num_steps=data_split[steps], normalize=True, linear=linear, tau=tau, interpolate=interpolate, clip=clip, threshold=threshold)
             elif encodings[steps] == "rate":
@@ -48,7 +48,7 @@ def hybrid_encoding(data, separate=True, splits = [0.5, 0.5], encodings=["latenc
             encoding_data = torch.cat(temp)
     else:
         # Treat them as continuations
-        for steps in range(len(splits))
+        for steps in range(len(splits)):
             if encodings[steps] == "latency":
                 try:
                     low_count = data_split[steps]
