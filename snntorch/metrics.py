@@ -14,11 +14,10 @@ def unpack_len1_tuple(x: tuple or torch.Tensor):
 class BaseMonitor:
     def __init__(self):
     	self.hooks = []
-   		self.monitored_layers = []
+    	self.monitored_layers = []
     	self.records = []
     	self.name_records_index = {}
     	self._enable = True
-
     def __getitem__(self, i):
         if isinstance(i, int):
             return self.records[i]
