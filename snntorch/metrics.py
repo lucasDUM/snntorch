@@ -14,10 +14,10 @@ def unpack_len1_tuple(x: tuple or torch.Tensor):
 class BaseMonitor:
     def __init__(self):
     	self.hooks = []
-        self.monitored_layers = []
-        self.records = []
-        self.name_records_index = {}
-        self._enable = True
+   		self.monitored_layers = []
+    	self.records = []
+    	self.name_records_index = {}
+    	self._enable = True
 
     def __getitem__(self, i):
         if isinstance(i, int):
@@ -65,7 +65,7 @@ class OutputMonitor(BaseMonitor):
         """
         super().__init__()
         self.function_on_output = function_on_output
-        
+
         for name, m in net.named_modules():
             if isinstance(m, instance):
                 self.monitored_layers.append(name)
