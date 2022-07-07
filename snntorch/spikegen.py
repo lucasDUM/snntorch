@@ -1,7 +1,7 @@
 import torch
 import math
 import itertools
-import numpy
+import numpy as np
 # Add phase encoding and also phase reweighting scheme migh be fun:)
 # Burst weighting as well 
 # PSP or the current injection
