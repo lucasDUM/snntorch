@@ -1,6 +1,7 @@
 import torch
 import math
 import itertools
+import numpy
 # Add phase encoding and also phase reweighting scheme migh be fun:)
 # Burst weighting as well 
 # PSP or the current injection
@@ -16,6 +17,9 @@ def find_splits(splits, step):
             break
     return temp
 
+def repeat_to_length(phase, wanted):
+    return (np.tile(phase, (wanted//len(phase) + 1)))[:wanted]
+
 def hybrid_encoding(data, separate=True, splits = [0.5, 0.5], encodings=["latency", "rate"], num_steps=False, time_var_input=False, tau=1, 
     threshold=0.01,clip=False, linear=False, interpolate=False, gain=1):
     """Hybrid encoding scheme of input data, using different encoding method at different time-steps based
@@ -30,10 +34,8 @@ def hybrid_encoding(data, separate=True, splits = [0.5, 0.5], encodings=["latenc
 
     if num_steps:
         data_split = find_splits(splits, num_steps)
-        #encoding_data = torch.zeros([num_steps]+list(data.size()))
     else:
         data_split = find_splits(splits, data.size(0))
-        #encoding_data = torch.zeros(list(data.size()))
 
     low_count = 0
     high_count = 0
@@ -65,6 +67,94 @@ def hybrid_encoding(data, separate=True, splits = [0.5, 0.5], encodings=["latenc
         high_count = 0
     return encoding_data
 
+def phase_rate(pattern=False, premade = "simple2", offset = 0, window = 5, gain = 1, amplitude = 1, additive = False, strength = 0.5, dampen = True, num_steps=False):
+    if num_steps:
+        size = num_steps
+    else:
+        size = data.size(0)
+
+    if window > size:
+        window = size
+
+    if pattern:
+        pass
+        # Do some checks
+    else:
+        if premade == "simple1":
+            # Digital signal
+            pattern = np.array([1, -1])
+        elif premade == "simple2":
+            # Digital signal
+            pattern = np.array([0, 1, -1])
+        elif premade == "simple3":
+            # Digital signal
+            pattern = np.array([0, 1, 0, -1])
+        elif premade == "simple4":
+            # Digital signal
+            pattern = np.array([0, -1])
+        elif premade == "simple5":
+            # Digital signal
+            pattern = np.array([0, 1])
+        elif premade == "exp":
+            # Sample from the exponential distribution
+            pattern = np.random.exponential(scale=1, size=(window))
+            negative_pattern = pattern*-1
+            pattern = np.concatenate((pattern, negative_pattern), axis=None)
+        elif premade == "gaussian":
+            pass
+            # Don't want to use sci-py and haven't implemented yet
+        else:
+            # Digital signal
+            pattern = np.array([1, -1])
+
+    pattern = pattern*amplitude
+    pattern = np.roll(pattern, offset)
+    phase = torch.tensor(repeat_to_length(pattern, size))
+
+    # Generate a tuple: (num_steps, 1..., 1) where the number of 1's = number of dimensions in the original data.
+    # Multiply by gain and add offset.
+    time_data = (
+        data.repeat(
+            tuple([num_steps] + torch.ones(len(data.size()), dtype=int).tolist())
+        )
+        * gain
+    )
+
+    # The higher the value the lower the probabilities
+    if dampen:
+        if additive:
+            for i in range(phase):
+                if time_data[i] <= 0:
+                    continue
+                time_data[i] = phase[i] + time_data[i]
+        else:
+            for i in range(phase):
+                if time_data[i] <= 0:
+                    continue
+                time_data[i] = phase[i]/strength * time_data[i]
+    else:
+         if additive:
+            for i in range(phase):
+                time_data[i] = phase[i] + time_data[i]
+        else:
+            for i in range(phase):
+                time_data[i] = phase[i]/strength * time_data[i]
+
+    # Clip all features between 0 and 1 so they can be used as probabilities.
+    clipped_data = torch.clamp(time_data, min=0, max=1)
+    # pass time_data matrix into bernoulli function.
+    spike_data = torch.bernoulli(clipped_data)
+
+    return spike_data
+
+def phase_latency():
+    pass
+def filter():
+    pass
+def burst_rewewighting():
+    pass
+def phase_reweighting():
+    pass
 
 def rate(
     data, num_steps=False, gain=1, offset=0, first_spike_time=0, time_var_input=False
