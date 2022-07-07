@@ -18,6 +18,7 @@ class BaseMonitor:
     	self.records = []
     	self.name_records_index = {}
     	self._enable = True
+    	
     def __getitem__(self, i):
         if isinstance(i, int):
             return self.records[i]
