@@ -133,7 +133,7 @@ def phase_rate(pattern=False, premade = "simple2", offset = 0, window = 5, gain 
                     continue
                 time_data[i] = phase[i]/strength * time_data[i]
     else:
-         if additive:
+        if additive:
             for i in range(phase):
                 time_data[i] = phase[i] + time_data[i]
         else:
