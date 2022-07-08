@@ -67,7 +67,7 @@ def hybrid_encoding(data, separate=True, splits = [0.5, 0.5], encodings=["latenc
         high_count = 0
     return encoding_data
 
-def phase_rate(data, pattern=False, premade = "simple2", offset = 0, window = 5, gain = 1, amplitude = 1, additive = False, strength = 0.5, dampen = True, num_steps=False):
+def phase_rate(data, pattern=False, premade = "simple2", offset = 0, window = 5, gain = 1, amplitude = 1, additive = False, strength = 100, dampen = True, num_steps=False):
     if num_steps:
         size = num_steps
     else:
@@ -135,6 +135,8 @@ def phase_rate(data, pattern=False, premade = "simple2", offset = 0, window = 5,
     else:
         if additive:
             for i in range(size):
+                if phase[i] == 0:
+                    continue
                 time_data[i] = phase[i]/strength + time_data[i]
         else:
             for i in range(size):
