@@ -137,7 +137,7 @@ def phase_rate(data, pattern=False, premade = "simple2", offset = 0, window = 5,
             for i in range(phase):
                 time_data[i] = phase[i] + time_data[i]
         else:
-            for i in range(phase):
+            for i in range(phase.size()[0]):
                 time_data[i] = phase[i]/strength * time_data[i]
 
     # Clip all features between 0 and 1 so they can be used as probabilities.
