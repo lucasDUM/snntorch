@@ -124,12 +124,12 @@ def phase_rate(data, pattern=False, premade = "simple2", offset = 0, window = 5,
     if dampen:
         if additive:
             for i in range(size):
-                if time_data[i] <= 0:
+                if phase[i] <= 0:
                     continue
                 time_data[i] = phase[i]/strength + time_data[i]
         else:
             for i in range(size):
-                if time_data[i] <= 0:
+                if phase[i] <= 0:
                     continue
                 time_data[i] = phase[i]/strength * time_data[i]
     else:
