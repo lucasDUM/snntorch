@@ -123,21 +123,23 @@ def phase_rate(data, pattern=False, premade = "simple2", offset = 0, window = 5,
     # The higher the value the lower the probabilities
     if dampen:
         if additive:
-            for i in range(phase):
+            for i in range(size):
                 if time_data[i] <= 0:
                     continue
                 time_data[i] = phase[i] + time_data[i]
         else:
-            for i in range(phase):
+            for i in range(size):
                 if time_data[i] <= 0:
                     continue
                 time_data[i] = phase[i]/strength * time_data[i]
     else:
         if additive:
-            for i in range(phase):
+            for i in range(size):
                 time_data[i] = phase[i] + time_data[i]
         else:
-            for i in range(phase.size()[0]):
+            for i in range(size):
+                if phase[i] == 0:
+                    continue
                 time_data[i] = phase[i]/strength * time_data[i]
 
     # Clip all features between 0 and 1 so they can be used as probabilities.
