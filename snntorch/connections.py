@@ -137,8 +137,8 @@ class _ConvNd(Module):
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
-                 burst_constant: int,
                  kernel_size: Tuple[int, ...],
+                 burst_constant: int,
                  stride: Tuple[int, ...],
                  padding: Tuple[int, ...],
                  dilation: Tuple[int, ...],
@@ -248,8 +248,8 @@ class Conv2d_Burst(_ConvNd):
         self,
         in_channels: int,
         out_channels: int,
-        burst_constant: int,
         kernel_size: _size_2_t,
+        burst_constant: int,
         stride: _size_2_t = 1,
         padding: Union[str, _size_2_t] = 0,
         dilation: _size_2_t = 1,
@@ -265,7 +265,7 @@ class Conv2d_Burst(_ConvNd):
         padding_ = padding if isinstance(padding, str) else _pair(padding)
         dilation_ = _pair(dilation)
         super(Conv2d_Burst, self).__init__(
-            in_channels, out_channels, kernel_size_, stride_, padding_, dilation_,
+            in_channels, out_channels, kernel_size_, burst_constant, stride_, padding_, dilation_,
             False, _pair(0), groups, bias, padding_mode, **factory_kwargs)
 
     def burst_function(self, burst_constant, input):
