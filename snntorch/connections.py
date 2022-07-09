@@ -109,18 +109,6 @@ class Linear_Burst(Module):
             self.in_features, self.out_features, self.bias is not None
         )
 
-
-# This class exists solely to avoid triggering an obscure error when scripting
-# an improperly quantized attention layer. See this issue for details:
-# https://github.com/pytorch/pytorch/issues/58969
-# TODO: fail fast on quantization API usage error, then remove this class
-# and replace uses of it with plain Linear
-class NonDynamicallyQuantizableLinear(Linear):
-    def __init__(self, in_features: int, out_features: int, bias: bool = True,
-                 device=None, dtype=None) -> None:
-        super().__init__(in_features, out_features, bias=bias,
-                         device=device, dtype=dtype)
-
 class _ConvNd(Module):
 
     __constants__ = ['stride', 'padding', 'dilation', 'groups',
