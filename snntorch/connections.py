@@ -88,11 +88,17 @@ class Linear_Burst(Module):
             bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
             init.uniform_(self.bias, -bound, bound)
 
-    def phase_function(self, period, step, input):
-        burst_modifier = torch.ones_like(input)
-        phase = 2^-(1+ step % period)
-        return phase * burst_modifier
-
+     def burst_function(self, burst_constant, input):
+        self.prev_spike = input
+        if self.First:
+            self.First = False
+            burst_modifier = torch.ones_like(input)
+        else:
+            mask = torch.eq(input, self.prev_spike, out=None)
+            modifier = burst_constant*mask
+            burst_modifier = modifier[modifier==0] = 1
+        return burst_modifier
+    
     def forward(self, input: Tensor) -> Tensor:
         # Add burst re_weighting here
         # Input data will be in shape Batch, channel, image
@@ -140,16 +146,10 @@ class Linear_Phase(Module):
             bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
             init.uniform_(self.bias, -bound, bound)
 
-    def burst_function(self, burst_constant, input):
-        self.prev_spike = input
-        if self.First:
-            self.First = False
-            burst_modifier = torch.ones_like(input)
-        else:
-            mask = torch.eq(input, self.prev_spike, out=None)
-            modifier = burst_constant*mask
-            burst_modifier = modifier[modifier==0] = 1
-        return burst_modifier
+    def phase_function(self, period, step, input):
+        burst_modifier = torch.ones_like(input)
+        phase = 2^-(1+ step % period)
+        return phase * burst_modifier
 
     def forward(self, input: Tensor) -> Tensor:
         # Add burst re_weighting here
