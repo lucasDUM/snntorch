@@ -102,7 +102,7 @@ class Linear_Burst(Module):
         # Add burst re_weighting here
         # Input data will be in shape Batch, channel, image
         # The Input data will be a spike train
-        return F.linear(input*burst_function(self.burst_constant, input), self.weight, self.bias)
+        return F.linear(input * self.burst_function(self.burst_constant, input), self.weight, self.bias)
 
     def extra_repr(self) -> str:
         return 'in_features={}, out_features={}, bias={}'.format(
