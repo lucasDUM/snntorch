@@ -20,7 +20,8 @@ from typing import Optional, List, Tuple, Union
 __all__ = [
     'Identity',
     'Linear_Burst',
-    'Conv2d'
+    'Linear_Phase',
+    'Conv2d_Burst'
 ]
 
 
@@ -52,6 +53,58 @@ class Identity(Module):
 
 
 class Linear_Burst(Module):
+    """Applies a linear transformation with threshold adaption to the incoming data: :math:`y = V_th . xA^T + b`
+    """
+    __constants__ = ['in_features', 'out_features', 'burst_constant']
+    in_features: int
+    out_features: int
+    burst_constant: int
+    weight: Tensor
+
+    def __init__(self, in_features: int, out_features: int, burst_constant: int, bias: bool = True,
+                 device=None, dtype=None) -> None:
+        factory_kwargs = {'device': device, 'dtype': dtype}
+        super(Linear_Burst, self).__init__()
+        self.in_features = in_features
+        self.out_features = out_features
+        self.burst_constant = burst_constant
+        self.weight = Parameter(torch.empty((out_features, in_features), **factory_kwargs))
+        self.prev_spike = torch.tensor(0)
+        self.First = True
+
+        if bias:
+            self.bias = Parameter(torch.empty(out_features, **factory_kwargs))
+        else:
+            self.register_parameter('bias', None)
+        self.reset_parameters()
+
+    def reset_parameters(self) -> None:
+        # Setting a=sqrt(5) in kaiming_uniform is the same as initializing with
+        # uniform(-1/sqrt(in_features), 1/sqrt(in_features)). For details, see
+        # https://github.com/pytorch/pytorch/issues/57109
+        init.kaiming_uniform_(self.weight, a=math.sqrt(5))
+        if self.bias is not None:
+            fan_in, _ = init._calculate_fan_in_and_fan_out(self.weight)
+            bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
+            init.uniform_(self.bias, -bound, bound)
+
+    def phase_function(self, period, step, input):
+        burst_modifier = torch.ones_like(input)
+        phase = 2^-(1+ step % period)
+        return phase * burst_modifier
+
+    def forward(self, input: Tensor) -> Tensor:
+        # Add burst re_weighting here
+        # Input data will be in shape Batch, channel, image
+        # The Input data will be a spike train
+        return F.linear(input * self.burst_function(self.burst_constant, input), self.weight, self.bias)
+
+    def extra_repr(self) -> str:
+        return 'in_features={}, out_features={}, bias={}'.format(
+            self.in_features, self.out_features, self.bias is not None
+        )
+
+class Linear_Phase(Module):
     """Applies a linear transformation with threshold adaption to the incoming data: :math:`y = V_th . xA^T + b`
     """
     __constants__ = ['in_features', 'out_features', 'burst_constant']
