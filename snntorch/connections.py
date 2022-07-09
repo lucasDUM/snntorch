@@ -68,7 +68,7 @@ class Linear_Burst(Module):
         self.out_features = out_features
         self.burst_constant = burst_constant
         self.weight = Parameter(torch.empty((out_features, in_features), **factory_kwargs))
-        self.prev_spike = torch.tensor()
+        self.prev_spike = torch.tensor(0)
         self.First = True
 
         if bias:
