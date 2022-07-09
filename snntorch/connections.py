@@ -122,6 +122,7 @@ class _ConvNd(Module):
     _in_channels: int
     _reversed_padding_repeated_twice: List[int]
     out_channels: int
+    burst_constant: int
     kernel_size: Tuple[int, ...]
     stride: Tuple[int, ...]
     padding: Union[str, Tuple[int, ...]]
@@ -136,6 +137,7 @@ class _ConvNd(Module):
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
+                 burst_constant: int,
                  kernel_size: Tuple[int, ...],
                  stride: Tuple[int, ...],
                  padding: Tuple[int, ...],
@@ -178,10 +180,10 @@ class _ConvNd(Module):
         self.output_padding = output_padding
         self.groups = groups
         self.padding_mode = padding_mode
-        # `_reversed_padding_repeated_twice` is the padding to be passed to
-        # `F.pad` if needed (e.g., for non-zero padding types that are
-        # implemented as two ops: padding + conv). `F.pad` accepts paddings in
-        # reverse order than the dimension.
+        self.burst_constant = burst_constant
+        self.prev_spike = torch.tensor(0)
+        self.First = True
+
         if isinstance(self.padding, str):
             self._reversed_padding_repeated_twice = [0, 0] * len(kernel_size)
             if padding == 'same':
@@ -241,11 +243,12 @@ class _ConvNd(Module):
         if not hasattr(self, 'padding_mode'):
             self.padding_mode = 'zeros'
 
-class Conv2d(_ConvNd):
+class Conv2d_Burst(_ConvNd):
     def __init__(
         self,
         in_channels: int,
         out_channels: int,
+        burst_constant: int,
         kernel_size: _size_2_t,
         stride: _size_2_t = 1,
         padding: Union[str, _size_2_t] = 0,
@@ -261,9 +264,20 @@ class Conv2d(_ConvNd):
         stride_ = _pair(stride)
         padding_ = padding if isinstance(padding, str) else _pair(padding)
         dilation_ = _pair(dilation)
-        super(Conv2d, self).__init__(
+        super(Conv2d_Burst, self).__init__(
             in_channels, out_channels, kernel_size_, stride_, padding_, dilation_,
             False, _pair(0), groups, bias, padding_mode, **factory_kwargs)
+
+    def burst_function(self, burst_constant, input):
+        self.prev_spike = input
+        if self.First:
+            self.First = False
+            burst_modifier = torch.ones_like(input)
+        else:
+            mask = torch.eq(input, self.prev_spike, out=None)
+            modifier = burst_constant*mask
+            burst_modifier = modifier[modifier==0] = 1
+        return burst_modifier
 
     def _conv_forward(self, input: Tensor, weight: Tensor, bias: Optional[Tensor]):
         if self.padding_mode != 'zeros':
@@ -274,4 +288,4 @@ class Conv2d(_ConvNd):
                         self.padding, self.dilation, self.groups)
 
     def forward(self, input: Tensor) -> Tensor:
-        return self._conv_forward(input, self.weight, self.bias)
+        return self._conv_forward(input * self.burst_function(self.burst_constant, input), self.weight, self.bias)
