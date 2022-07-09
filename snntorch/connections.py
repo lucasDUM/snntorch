@@ -88,7 +88,7 @@ class Linear_Burst(Module):
             bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
             init.uniform_(self.bias, -bound, bound)
 
-     def burst_function(self, burst_constant, input):
+    def burst_function(self, burst_constant, input):
         self.prev_spike = input
         if self.First:
             self.First = False
