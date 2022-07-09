@@ -194,7 +194,7 @@ def moving_window(data, threshold, window):
     return spikes, startpoint
 
 
-def temporal_contrast(data, method="step_forward", threshold=10, window=4)
+def temporal_contrast(data, method="step_forward", threshold=10, window=4):
     # Locally referenced
     # Similar to delat encoding in snnTorch
     pass
