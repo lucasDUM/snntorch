@@ -67,17 +67,10 @@ def hybrid_encoding(data, separate=True, splits = [0.5, 0.5], encodings=["latenc
         high_count = 0
     return encoding_data
 
-def phase_rate(data, pattern=False, premade = "simple2", offset = 0, window = 5, gain = 1, amplitude = 1, additive = False, strength = 10, dampen = True, num_steps=False):
-    if num_steps:
-        size = num_steps
-    else:
-        size = data.size(0)
-
-    if window > size:
-        window = size
-
+def create_signal(size, pattern, premade, amplitude, offset, window):
     if pattern:
-        pass
+        if len(pattern) > size:
+            pattern = pattern[:, size]
         # Do some checks
     else:
         if premade == "simple1":
@@ -111,8 +104,19 @@ def phase_rate(data, pattern=False, premade = "simple2", offset = 0, window = 5,
     pattern = np.roll(pattern, offset)
     phase = torch.tensor(repeat_to_length(pattern, size))
 
-    # Generate a tuple: (num_steps, 1..., 1) where the number of 1's = number of dimensions in the original data.
-    # Multiply by gain and add offset.
+    return phase
+
+def phase_rate(data, pattern=False, premade = "simple2", offset = 0, window = 5, gain = 1, amplitude = 1, additive = False, strength = 10, dampen = True, num_steps=False):
+    if num_steps:
+        size = num_steps
+    else:
+        size = data.size(0)
+
+    if window > size:
+        window = size
+
+    phase = create_signal(size=size, pattern=pattern, premade=premade, amplitude=amplitude, offset=off_target, window=window)
+    
     time_data = (
         data.repeat(
             tuple([num_steps] + torch.ones(len(data.size()), dtype=int).tolist())
@@ -120,7 +124,6 @@ def phase_rate(data, pattern=False, premade = "simple2", offset = 0, window = 5,
         * gain
     )
 
-    # The higher the value the lower the probabilities
     if dampen:
         if additive:
             for i in range(size):
@@ -151,15 +154,68 @@ def phase_rate(data, pattern=False, premade = "simple2", offset = 0, window = 5,
 
     return spike_data
 
-def phase_latency():
+def step_forward(data, threshold):
+    # SF just uses the next available signal value and checks if the previous value and an additional threshold is exceeded. 
+    #It sends out appropriate spikes depending on the polarity of the signal difference.
+    # Based on algorithm provided in:
+    #   Petro et al. (2020)
+    startpoint = data[0]
+    spikes = np.zeros(len(data))
+    base = startpoint
+    for i in range(1,len(data)):
+        if data[i] > base + threshold:
+            spikes[i] = 1
+            base = base + threshold
+        elif data[i] < base - threshold:
+            spikes[i] = -1
+            base = base - threshold
+    return spikes, startpoint
+
+
+def moving_window(data, threshold, window):
+    # MW uses a base which is defined by the mean of the previous signal in a time window. 
+    # Again positive or negative spikes are emitted if the current signal value exceeds the base and threshold.
+    # Based on algorithm provided in:
+    #   Petro et al. (2020)
+    startpoint = data[0]
+    spikes = np.zeros(len(data))
+    base = np.mean(data[0:window+1])
+    for i in range(window+1):
+        if data[i] > base + threshold:
+            spikes[i] = 1
+        elif data[i] < base - threshold:
+            spikes[i] = -1
+    for i in range(window+2, len(data)):
+        base = np.mean(data[(i-window-1):(i-1)])
+        if data[i] > base + threshold:
+            spikes[i] = 1
+        elif data[i] < base - threshold:
+            spikes[i] = -1
+    return spikes, startpoint
+
+
+def temporal_contrast(data, method="step_forward", threshold=10, window=4)
+    # Locally referenced
+    # Similar to delat encoding in snnTorch
     pass
-def filter():
-    pass
-def burst_rewewighting():
-    pass
+
+#def burst_reweighting(model: nn.Module, val: float) -> nn.Module:
+    #for parameter in model.parameters():
+        #parameter.register_hook(lambda grad: grad.clamp_(-val, val))
+    
+    #return model
 def phase_reweighting():
     pass
 
+def phase():
+    """
+    Instead of a single reference point, phase coding encodes information in the relative time difference between spikes 
+    and a reference oscillation [36, 42]. The phase pattern repeats periodically if no changes between the cycles appeared. 
+    Each single neuron fires in respect to the reference signal and encodes the data similar to TTFS. 
+    Such a behaviour was detected by Gray, König, Engel, and Singer [31]. 
+    They analysed the firing probability of neurons in the cat visual cortex and identified a relation between the firing pattern and a reference oscillation.
+    """
+    pass
 def rate(
     data, num_steps=False, gain=1, offset=0, first_spike_time=0, time_var_input=False
 ):
@@ -281,7 +337,6 @@ def rate(
             spike_data[0:first_spike_time] = 0
 
     return spike_data
-
 
 def latency(
     data,
@@ -531,7 +586,10 @@ def latency_code(
     linear=False,
     epsilon=1e-7,
 ):
-    """Latency encoding of input data. Convert input features or target labels to spike times. Assumes a LIF neuron model
+    """
+    I'm pretty sure this is a TTFS scheme (time to first spike) also known as latency coding
+    Global reference 
+    Latency encoding of input data. Convert input features or target labels to spike times. Assumes a LIF neuron model
     that charges up with time constant tau by default.
 
     Example::

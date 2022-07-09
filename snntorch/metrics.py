@@ -18,7 +18,7 @@ class BaseMonitor:
     	self.records = []
     	self.name_records_index = {}
     	self._enable = True
-    	
+
     def __getitem__(self, i):
         if isinstance(i, int):
             return self.records[i]
@@ -78,4 +78,3 @@ class OutputMonitor(BaseMonitor):
                 self.name_records_index[name].append(self.records.__len__())
                 self.records.append(self.function_on_output(unpack_len1_tuple(y)))
         return hook
-
