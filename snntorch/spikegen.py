@@ -115,7 +115,7 @@ def phase_rate(data, pattern=False, premade = "simple2", offset = 0, window = 5,
     if window > size:
         window = size
 
-    phase = create_signal(size=size, pattern=pattern, premade=premade, amplitude=amplitude, offset=off_target, window=window)
+    phase = create_signal(size=size, pattern=pattern, premade=premade, amplitude=amplitude, offset=0, window=window)
     
     time_data = (
         data.repeat(
