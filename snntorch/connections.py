@@ -63,7 +63,7 @@ class Linear_Burst(Module):
     def __init__(self, in_features: int, out_features: int, burst_constant: int, bias: bool = True,
                  device=None, dtype=None) -> None:
         factory_kwargs = {'device': device, 'dtype': dtype}
-        super(Linear, self).__init__()
+        super(Linear_Burst, self).__init__()
         self.in_features = in_features
         self.out_features = out_features
         self.burst_constant = burst_constant
