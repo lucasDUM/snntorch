@@ -54,18 +54,23 @@ class Identity(Module):
 class Linear_Burst(Module):
     """Applies a linear transformation with threshold adaption to the incoming data: :math:`y = V_th . xA^T + b`
     """
-    __constants__ = ['in_features', 'out_features']
+    __constants__ = ['in_features', 'out_features', 'burst_constant']
     in_features: int
     out_features: int
+    burst_constant: int
     weight: Tensor
 
-    def __init__(self, in_features: int, out_features: int, bias: bool = True,
+    def __init__(self, in_features: int, out_features: int, burst_constant: int, bias: bool = True,
                  device=None, dtype=None) -> None:
         factory_kwargs = {'device': device, 'dtype': dtype}
         super(Linear, self).__init__()
         self.in_features = in_features
         self.out_features = out_features
+        self.burst_constant = burst_constant
         self.weight = Parameter(torch.empty((out_features, in_features), **factory_kwargs))
+        self.prev_spike = torch.tensor()
+        self.First = True
+
         if bias:
             self.bias = Parameter(torch.empty(out_features, **factory_kwargs))
         else:
@@ -82,11 +87,22 @@ class Linear_Burst(Module):
             bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
             init.uniform_(self.bias, -bound, bound)
 
+    def burst_function(burst_constant, input):
+        self.prev_spike = input
+        if self.First:
+            self.First = False
+            burst_modifier = torch.ones_like(input)
+        else:
+            mask = torch.eq(input, self.prev_spike, out=None)
+            modifier = burst_constant*mask
+            burst_modifier = modifier[modifier==0] = 1
+        return burst_modifier
+
     def forward(self, input: Tensor) -> Tensor:
         # Add burst re_weighting here
         # Input data will be in shape Batch, channel, image
         # The Input data will be a spike train
-        return F.linear(input, self.weight, self.bias)
+        return F.linear(input*burst_function(self.burst_constant, input), self.weight, self.bias)
 
     def extra_repr(self) -> str:
         return 'in_features={}, out_features={}, bias={}'.format(
