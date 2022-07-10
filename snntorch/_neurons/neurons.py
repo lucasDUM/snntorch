@@ -234,9 +234,9 @@ class LIF(SpikingNeuron):
 
     def __init__(
         self,
+        beta,
         burst=False,
         burst_constant=2.0,
-        beta,
         threshold=1.0,
         spike_grad=None,
         init_hidden=False,
