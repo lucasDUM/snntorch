@@ -219,6 +219,7 @@ class LIF(SpikingNeuron):
         self,
         beta,
         burst=False,
+        burst_constant=2.0,
         threshold=1.0,
         spike_grad=None,
         init_hidden=False,
