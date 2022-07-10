@@ -4,6 +4,11 @@ from torch import nn
 
 from typing import Dict, Iterable, Callable, Any
 
+def sparsity(count, size, time_steps):
+	return count / (size*time_steps)
+def spike_rate(count, size):
+	return count/size
+
 def count_spikes(monitor):
     total_spike_count = 0
     for tensor in monitor.records:
@@ -11,8 +16,22 @@ def count_spikes(monitor):
             total_spike_count += tensor.sum()
         else:
             total_spike_count += tensor[0].sum()
-    return total_spike_count
-    
+    return total_spike_count.item()
+
+def total_neurons(monitor):
+  sum = 0
+  for i in range(len(monitor.monitored_layers)):
+    temp = 1
+    try:
+      for value in monitor.records[i].size()[1:]:
+        temp *= value
+      sum += temp
+    except:
+      for value in monitor.records[i][0].size()[1:]:
+        temp *= value
+      sum += temp
+  return sum
+
 def unpack_len1_tuple(x: tuple or torch.Tensor):
     if isinstance(x, tuple) and x.__len__() == 1:
         return x[0]
