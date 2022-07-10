@@ -1,5 +1,5 @@
 from .neurons import *
-
+import torch
 
 class Leaky(LIF):
     """
