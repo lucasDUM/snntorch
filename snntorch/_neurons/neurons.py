@@ -55,19 +55,6 @@ class SpikingNeuron(nn.Module):
             self.spike_grad = spike_grad
 
         self.state_quant = state_quant
-    """
-    def burst_function(self, input, burst_constant):
-        self.prev_spike = input
-        if self.First:
-            self.First = False
-            burst_modifier = torch.ones_like(input)
-        else:
-            mask = torch.eq(input, self.prev_spike, out=None)
-            modifier = burst_constant*mask
-            burst_modifier = modifier[modifier==0] = 1
-
-        self.adaptive_threshold_matrix = burst_modifier
-    """
 
     def fire(self, mem):
         """Generates spike if mem > threshold.
@@ -259,7 +246,7 @@ class LIF(SpikingNeuron):
             learn_beta,
         )
         self._reset_mechanism = reset_mechanism
-
+        self.burst=burst
         # TO-DO: Heaviside --> STE; needs a tutorial change too?
         if spike_grad is None:
             self.spike_grad = self.Heaviside.apply
