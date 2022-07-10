@@ -4,7 +4,15 @@ from torch import nn
 
 from typing import Dict, Iterable, Callable, Any
 
-
+def count_spikes(monitor):
+    total_spike_count = 0
+    for tensor in monitor.records:
+        if str(type(tensor)) == "<class 'torch.Tensor'>":
+            total_spike_count += tensor.sum()
+        else:
+            total_spike_count += tensor[0].sum()
+    return total_spike_count
+    
 def unpack_len1_tuple(x: tuple or torch.Tensor):
     if isinstance(x, tuple) and x.__len__() == 1:
         return x[0]
