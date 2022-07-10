@@ -88,13 +88,13 @@ class Linear_Burst(Module):
             bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
             init.uniform_(self.bias, -bound, bound)
 
-    def burst_function(self, burst_constant, input):
-        self.prev_spike = input
+    def burst_function(self, burst_constant, input_):
+        self.prev_spike = input_
         if self.First:
             self.First = False
-            burst_modifier = torch.ones_like(input)
+            burst_modifier = torch.ones_like(input_)
         else:
-            mask = torch.eq(input, self.prev_spike, out=None)
+            mask = torch.eq(input_, self.prev_spike, out=None)
             modifier = burst_constant*mask
             burst_modifier = modifier[modifier==0] = 1
         return burst_modifier
@@ -321,13 +321,13 @@ class Conv2d_Burst(_ConvNd):
             in_channels, out_channels, kernel_size_, burst_constant, stride_, padding_, dilation_,
             False, _pair(0), groups, bias, padding_mode, **factory_kwargs)
 
-    def burst_function(self, burst_constant, input):
-        self.prev_spike = input
+    def burst_function(self, burst_constant, input_):
+        self.prev_spike = input_
         if self.First:
             self.First = False
-            burst_modifier = torch.ones_like(input)
+            burst_modifier = torch.ones_like(input_)
         else:
-            mask = torch.eq(input, self.prev_spike, out=None)
+            mask = torch.eq(input_, self.prev_spike, out=None)
             modifier = burst_constant*mask
             burst_modifier = modifier[modifier==0] = 1
         return burst_modifier

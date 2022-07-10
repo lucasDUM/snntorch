@@ -134,7 +134,27 @@ class Leaky(LIF):
         else:
             self.state_fn = self._build_state_function
 
+        self.First = True
+        self.prev_spike = torch.tensor(0)
+
+    def burst_function(self, input_, burst_constant):
+        self.prev_spike = input_
+        if self.First:
+            self.First = False
+            burst_modifier = torch.ones_like(input_)
+        else:
+            mask = torch.eq(input_, self.prev_spike, out=None)
+            modifier = burst_constant*mask
+            burst_modifier = modifier[modifier==0] = 1
+        return burst_modifier
+
     def forward(self, input_, mem=False):
+        if self.burst:
+            adaptive_threhold = self.burst_function(input_, self.burst_constant)
+        else:
+            adaptive_threhold = 1
+
+        input_ = input_ * adaptive_threhold
 
         if hasattr(mem, "init_flag"):  # only triggered on first-pass
             mem = _SpikeTorchConv(mem, input_=input_)
@@ -162,9 +182,7 @@ class Leaky(LIF):
         # intended for truncated-BPTT where instance variables are hidden states
         if self.init_hidden:
             self._leaky_forward_cases(mem)
-            # Old mem
             self.reset = self.mem_reset(self.mem)
-            # New mem
             self.mem = self.state_fn(input_)
 
             if self.state_quant:

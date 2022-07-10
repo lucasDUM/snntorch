@@ -48,10 +48,6 @@ class SpikingNeuron(nn.Module):
         self._snn_register_buffer(threshold, learn_threshold, reset_mechanism)
         self._reset_mechanism = reset_mechanism
 
-        self.First = True
-        self.prev_spike = torch.tensor(0)
-        #self.adaptive_threshold_matrix = torch.tensor(0)
-
         # TO-DO: Heaviside --> STE; needs a tutorial change too?
         if spike_grad is None:
             self.spike_grad = self.Heaviside.apply
