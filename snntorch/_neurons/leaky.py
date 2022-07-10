@@ -137,7 +137,8 @@ class Leaky(LIF):
         self.First = True
         self.prev_spike = torch.tensor(0)
         self.burst = burst
-        
+        self.burst_constant = burst_constant
+
     def burst_function(self, input_, burst_constant):
         self.prev_spike = input_
         if self.First:
