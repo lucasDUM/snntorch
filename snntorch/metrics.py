@@ -4,9 +4,9 @@ from torch import nn
 
 from typing import Dict, Iterable, Callable, Any
 
-def sparsity(count, size, time_steps):
+def spike_rate(count, size, time_steps):
 	return count / (size*time_steps)
-def spike_rate(count, size):
+def sparsity(count, size):
 	return count/size
 
 def count_spikes(monitor):
