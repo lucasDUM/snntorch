@@ -100,6 +100,8 @@ class Leaky(LIF):
 
     def __init__(
         self,
+        burst=False,
+        burst_constant=2.0,
         beta,
         threshold=1.0,
         spike_grad=None,
@@ -112,6 +114,8 @@ class Leaky(LIF):
         output=False,
     ):
         super(Leaky, self).__init__(
+            burst,
+            burst_constant,
             beta,
             threshold,
             spike_grad,
@@ -158,7 +162,9 @@ class Leaky(LIF):
         # intended for truncated-BPTT where instance variables are hidden states
         if self.init_hidden:
             self._leaky_forward_cases(mem)
+            # Old mem
             self.reset = self.mem_reset(self.mem)
+            # New mem
             self.mem = self.state_fn(input_)
 
             if self.state_quant:
