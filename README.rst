@@ -1,7 +1,11 @@
 ================
 Introduction
 ================
-This project utilizes snnTorch for research into hybrid neural encodings for supervised learning with spiking neural networks
+This project utilizes snnTorch for research into hybrid neural encodings for supervised learning with spiking neural networks.
+
+This is a work in progress, documentation will be avaible after it is finished. 
+
+Most of my work is concerned with spikegen.py and creating new Neuron Models.
 
 .. image:: https://github.com/jeshraghian/snntorch/actions/workflows/build.yml/badge.svg
         :target: https://snntorch.readthedocs.io/en/latest/?badge=latest
