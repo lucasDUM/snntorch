@@ -103,7 +103,9 @@ class Linear_Burst(Module):
         # Add burst re_weighting here
         # Input data will be in shape Batch, channel, image
         # The Input data will be a spike train
-        return F.linear(input * self.burst_function(self.burst_constant, input), self.weight, self.bias)
+        # Return Threshold as well
+        threshold = self.burst_function(self.burst_constant, input)
+        return F.linear(input, self.weight*threshold, self.bias), threshold
 
     def extra_repr(self) -> str:
         return 'in_features={}, out_features={}, bias={}'.format(
@@ -341,4 +343,5 @@ class Conv2d_Burst(_ConvNd):
                         self.padding, self.dilation, self.groups)
 
     def forward(self, input: Tensor) -> Tensor:
-        return self._conv_forward(input * self.burst_function(self.burst_constant, input), self.weight, self.bias)
+        threshold = self.burst_function(self.burst_constant, input)
+        return self._conv_forward(input, self.weight*threshold, self.bias), threshold
