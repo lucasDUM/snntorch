@@ -344,7 +344,7 @@ class Conv2d_Burst(_ConvNd):
 
     def forward(self, input: Tensor) -> Tensor:
         threshold = self.burst_function(self.burst_constant, input)
-        print(threshold.size())
-        print(input.size())
-        print(self.weight.size())
-        return self._conv_forward(input, self.weight*threshold, self.bias), threshold
+        #print(threshold.size())
+        #print(input.size())
+        #print(self.weight.size())
+        return self._conv_forward(input*threshold, self.weight, self.bias), threshold
