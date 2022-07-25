@@ -137,7 +137,7 @@ class Leaky(LIF):
         self.First = True
         self.prev_spike = torch.tensor(0)
         self.burst = burst
-        self.burst_constant = burst_constant
+        self.burst_constant = burst
 
     def burst_function(self, input_, burst_constant):
         self.prev_spike = input_
@@ -185,6 +185,7 @@ class Leaky(LIF):
         if self.init_hidden:
             self._leaky_forward_cases(mem)
             self.reset = self.mem_reset(self.mem)
+            print(self.reset)
             self.mem = self.state_fn(input_)
 
             if self.state_quant:
@@ -196,6 +197,7 @@ class Leaky(LIF):
                 self.spk = self.fire(self.mem)
 
             if self.output:  # read-out layer returns output+states
+                print(self.spk)
                 return self.spk, self.mem
             else:  # hidden layer e.g., in nn.Sequential, only returns output
                 return self.spk
