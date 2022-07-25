@@ -185,9 +185,9 @@ class Leaky(LIF):
         if self.init_hidden:
             self._leaky_forward_cases(mem)
             self.reset = self.mem_reset(self.mem)
-            print(self.reset)
             self.mem = self.state_fn(input_)
 
+            print(self.reset)
             if self.state_quant:
                 self.mem = self.state_quant(self.mem)
 
