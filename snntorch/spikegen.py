@@ -204,7 +204,7 @@ def temporal_contrast(data, method="step_forward", threshold=10, window=4):
         #parameter.register_hook(lambda grad: grad.clamp_(-val, val))
     
     #return model
-    
+
 def burst_coding(images: torch.Tensor, N_max: int = 5, timesteps: int = 100, T_min: int = 2):
     # Compute N_s (the number of spikes per pixel)
     N_s = torch.ceil(N_max * images)
@@ -217,7 +217,8 @@ def burst_coding(images: torch.Tensor, N_max: int = 5, timesteps: int = 100, T_m
 
     # Reconstruct the spikes tensor with N_s and ISI
     S = torch.zeros(
-        (timesteps, images.shape[0], images.shape[1], images.shape[2], images.shape[3]))
+        (timesteps, images.shape[0], images.shape[1], images.shape[2]))
+    #images.shape[3]
     # first timesteps are full of 0s until T_min
 
     distances = torch.zeros_like(ISI)  # separating two spikes for each pixels
