@@ -187,7 +187,7 @@ class Leaky(LIF):
             self.reset = self.mem_reset(self.mem)
             self.mem = self.state_fn(input_)
 
-            print(self.reset)
+            print(self.reset.size())
             if self.state_quant:
                 self.mem = self.state_quant(self.mem)
 
@@ -197,7 +197,7 @@ class Leaky(LIF):
                 self.spk = self.fire(self.mem)
 
             if self.output:  # read-out layer returns output+states
-                print(self.spk)
+                print(self.spk.size())
                 return self.spk, self.mem
             else:  # hidden layer e.g., in nn.Sequential, only returns output
                 return self.spk
