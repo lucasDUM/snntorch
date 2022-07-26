@@ -204,8 +204,31 @@ def temporal_contrast(data, method="step_forward", threshold=10, window=4):
         #parameter.register_hook(lambda grad: grad.clamp_(-val, val))
     
     #return model
-def phase_reweighting():
-    pass
+    
+def burst_coding(images: torch.Tensor, N_max: int = 5, timesteps: int = 100, T_min: int = 2):
+    # Compute N_s (the number of spikes per pixel)
+    N_s = torch.ceil(N_max * images)
+
+    # Compute ISI (the InterSpike Interval per pixel)
+    ISI = torch.full_like(images, float(timesteps))
+
+    ISI[N_s > 1.] = torch.ceil(-(timesteps - T_min)
+                               * images[N_s > 1.] + timesteps)
+
+    # Reconstruct the spikes tensor with N_s and ISI
+    S = torch.zeros(
+        (timesteps, images.shape[0], images.shape[1], images.shape[2], images.shape[3]))
+    # first timesteps are full of 0s until T_min
+
+    distances = torch.zeros_like(ISI)  # separating two spikes for each pixels
+    for i in range(timesteps):
+        mask = torch.logical_and(distances == ISI, N_s > 0)
+        S[i] = mask.float()
+        distances += 1
+        distances[mask] = 0
+        N_s[mask] -= 1
+
+    return S
 
 def phase():
     """
