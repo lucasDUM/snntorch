@@ -101,8 +101,7 @@ class Leaky(LIF):
     def __init__(
         self,
         beta,
-        burst=False,
-        burst_constant=2.0,
+        burst_threshold=1.0,
         threshold=1.0,
         spike_grad=None,
         init_hidden=False,
@@ -115,8 +114,7 @@ class Leaky(LIF):
     ):
         super(Leaky, self).__init__(
             beta,
-            burst,
-            burst_constant,
+            burst_threshold,
             threshold,
             spike_grad,
             init_hidden,
@@ -134,29 +132,10 @@ class Leaky(LIF):
         else:
             self.state_fn = self._build_state_function
 
-        self.First = True
-        self.prev_spike = torch.tensor(0)
-        self.burst = burst
-        self.burst_constant = burst_constant
-
-    def burst_function(self, input_, burst_constant):
-        self.prev_spike = input_
-        if self.First:
-            self.First = False
-            burst_modifier = torch.ones_like(input_)
-        else:
-            mask = torch.eq(input_, self.prev_spike, out=None)
-            modifier = burst_constant*mask
-            burst_modifier = modifier[modifier==0] = 1
-        return burst_modifier
+        self.burst_threshold = burst_threshold
 
     def forward(self, input_, mem=False):
-        if self.burst:
-            adaptive_threhold = self.burst_function(input_, self.burst_constant)
-        else:
-            adaptive_threhold = 1
-
-        input_ = input_ * adaptive_threhold
+        input_ = input_
 
         if hasattr(mem, "init_flag"):  # only triggered on first-pass
             mem = _SpikeTorchConv(mem, input_=input_)

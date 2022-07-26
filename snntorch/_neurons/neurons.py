@@ -218,8 +218,7 @@ class LIF(SpikingNeuron):
     def __init__(
         self,
         beta,
-        burst=False,
-        burst_constant=2.0,
+        burst_threshold=1.0,
         threshold=1.0,
         spike_grad=None,
         init_hidden=False,
@@ -246,7 +245,6 @@ class LIF(SpikingNeuron):
             learn_beta,
         )
         self._reset_mechanism = reset_mechanism
-        self.burst=burst
         # TO-DO: Heaviside --> STE; needs a tutorial change too?
         if spike_grad is None:
             self.spike_grad = self.Heaviside.apply
