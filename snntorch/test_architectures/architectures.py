@@ -74,3 +74,6 @@ class Burst_SNN(nn.Module):
 #Middle 128C3(Encoding)-AP2-256C3-512C3-AP2-512FC-Voting
 #Large 128C3(Encoding)-256C3-AP2-512C3-AP2-1024C3-512C3-1024FC-512FC-Voting
 # 128C3(Encoding)-256C3-AP2-512C3-AP2-1024C3-512C3-1024FC-512FC-Voting
+
+# Temporal-Coded Deep Spiking Neural Network with Easy Training and Robust Performance
+#https://github.com/zbs881314/Temporal-Coded-Deep-SNN
