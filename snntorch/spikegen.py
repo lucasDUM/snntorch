@@ -549,7 +549,7 @@ def delta(
     :type alt: bool, optional
     """
     print(len(data))
-    print(type(data)
+    print(type(data))
     print(data.size())
 
     if not alt:
