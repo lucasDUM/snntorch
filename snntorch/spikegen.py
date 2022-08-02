@@ -511,6 +511,7 @@ def delta(
     threshold=0.1,
     padding=False,
     off_spike=False,
+    alt=False
 ):
     """Generate spike only when the difference between two subsequent time steps meets a threshold.
     Optionally include off_spikes for negative changes.
@@ -543,24 +544,43 @@ def delta(
 
     :param off_spike: If ``True``, negative spikes for changes less than ``-threshold``, defaults to ``False``
     :type off_spike: bool, optional
+
+    :param alt: If ``True``, in Channel, Time, Data format, defaults to ``False``
+    :type alt: bool, optional
     """
+    if !alt:
+        if padding:
+            data_offset = torch.cat((data[0].unsqueeze(0), data))[
+                :-1
+            ]  # duplicate first time step, remove final step
+        else:
+            data_offset = torch.cat((torch.zeros_like(data[0]).unsqueeze(0), data))[
+                :-1
+            ]  # add 0's to first step, remove final step
 
-    if padding:
-        data_offset = torch.cat((data[0].unsqueeze(0), data))[
-            :-1
-        ]  # duplicate first time step, remove final step
+        if not off_spike:
+            return torch.ones_like(data) * ((data - data_offset) >= threshold)
+
+        else:
+            on_spk = torch.ones_like(data) * ((data - data_offset) >= threshold)
+            off_spk = -torch.ones_like(data) * ((data - data_offset) <= -threshold)
+            return on_spk + off_spk
     else:
-        data_offset = torch.cat((torch.zeros_like(data[0]).unsqueeze(0), data))[
-            :-1
-        ]  # add 0's to first step, remove final step
+        if padding:
+            data_offset = torch.cat((data[0].unsqueeze(0), data))[
+                :-1
+            ]  # duplicate first time step, remove final step
+        else:
+            data_offset = torch.cat((torch.zeros_like(single[:, 0]).unsqueeze(1), single), 1)[:, :-1]
 
-    if not off_spike:
-        return torch.ones_like(data) * ((data - data_offset) >= threshold)
+        if not off_spike:
+            return torch.ones_like(data) * ((data - data_offset) >= threshold)
 
-    else:
-        on_spk = torch.ones_like(data) * ((data - data_offset) >= threshold)
-        off_spk = -torch.ones_like(data) * ((data - data_offset) <= -threshold)
-        return on_spk + off_spk
+        else:
+            on_spk = torch.ones_like(data) * ((data - data_offset) >= threshold)
+            off_spk = -torch.ones_like(data) * ((data - data_offset) <= -threshold)
+            return on_spk + off_spk
+
 
 
 def rate_conv(data):
