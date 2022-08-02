@@ -548,6 +548,8 @@ def delta(
     :param alt: If ``True``, in Channel, Time, Data format, defaults to ``False``
     :type alt: bool, optional
     """
+    data = data[0]
+
     if not alt:
         if padding:
             data_offset = torch.cat((data[0].unsqueeze(0), data))[
