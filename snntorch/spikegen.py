@@ -511,7 +511,7 @@ def delta(
     threshold=0.1,
     padding=False,
     off_spike=False,
-    alt=False
+    alt=True
 ):
     """Generate spike only when the difference between two subsequent time steps meets a threshold.
     Optionally include off_spikes for negative changes.
@@ -548,9 +548,9 @@ def delta(
     :param alt: If ``True``, in Channel, Time, Data format, defaults to ``False``
     :type alt: bool, optional
     """
-    print(len(data))
-    print(type(data))
-    print(data.size())
+    #print(len(data))
+    #print(type(data))
+    #print(data.size())
 
     if not alt:
         if padding:
@@ -575,9 +575,11 @@ def delta(
                 :-1
             ]  # duplicate first time step, remove final step
         else:
+            # 3, 16, 172, 172
             data_offset = torch.cat((torch.zeros_like(data[:, 0]).unsqueeze(1), data), 1)[:, :-1]
 
         if not off_spike:
+            print("I do in fact get here LOL")
             return torch.ones_like(data) * ((data - data_offset) >= threshold)
 
         else:
