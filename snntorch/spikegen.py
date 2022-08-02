@@ -548,7 +548,9 @@ def delta(
     :param alt: If ``True``, in Channel, Time, Data format, defaults to ``False``
     :type alt: bool, optional
     """
-    data = data[0]
+    print(len(data))
+    print(type(data)
+    print(data.size())
 
     if not alt:
         if padding:
