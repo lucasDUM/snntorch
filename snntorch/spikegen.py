@@ -154,60 +154,41 @@ def phase_rate(data, pattern=False, premade = "simple2", offset = 0, window = 5,
 
     return spike_data
 
-# SF just uses the next available signal value and checks if the previous value and an additional threshold is exceeded. 
-# It sends out appropriate spikes depending on the polarity of the signal difference.
-def step_forward(data, threshold):
-    # Based on algorithm provided in:
-    #   Petro et al. (2020)
-    startpoint = data[0]
-    spikes = np.zeros(len(data))
-    base = startpoint
-    for i in range(1,len(data)):
-        if data[i] > base + threshold:
-            spikes[i] = 1
-            base = base + threshold
-        elif data[i] < base - threshold:
-            spikes[i] = -1
-            base = base - threshold
-    return spikes, startpoint
+def saccade_coding(images: torch.Tensor, timesteps: int = 100, max_dx: int = 20, max_dy: int = 20, delta_threshold=0.1):
+    dx_step = max_dx / (2 * timesteps)  # pixel distance per timestep
+    dy_step = max_dy / timesteps
 
+    dx = 0.
+    dy = 0.
 
-def moving_window(data, threshold, window):
-    # MW uses a base which is defined by the mean of the previous signal in a time window. 
-    # Again positive or negative spikes are emitted if the current signal value exceeds the base and threshold.
-    # Based on algorithm provided in:
-    #   Petro et al. (2020)
-    startpoint = data[0]
-    spikes = np.zeros(len(data))
-    base = np.mean(data[0:window+1])
-    for i in range(window+1):
-        if data[i] > base + threshold:
-            spikes[i] = 1
-        elif data[i] < base - threshold:
-            spikes[i] = -1
-    for i in range(window+2, len(data)):
-        base = np.mean(data[(i-window-1):(i-1)])
-        if data[i] > base + threshold:
-            spikes[i] = 1
-        elif data[i] < base - threshold:
-            spikes[i] = -1
-    return spikes, startpoint
-
-def synchrony_coding(images: torch.Tensor, timesteps: int = 100, saccade_number: int = 3, delta_threshold: float = 0.1, dx: int = 2):
     translations = torch.zeros((timesteps, *images.shape))
     i = 0
+    # first saccade
+    for _ in range(int(timesteps/3)):
+        dx += dx_step
+        dy += dy_step
+        # print(dx, dy)
+        translations[i] = affine(
+            images, 0, [math.floor(dx), math.floor(dy)], 1, 0)
+        i += 1
 
-    # compute time between 2 saccades
-    rest_time = math.floor(timesteps / saccade_number)
+    # second saccade
+    for _ in range(int(timesteps/3)):
+        dx += dx_step
+        dy = max(0, dy - dy_step)  # avoid negative value
+        # print(dx, dy)
+        translations[i] = affine(
+            images, 0, [math.floor(dx), math.floor(dy)], 1, 0)
+        i += 1
 
-    for _ in range(saccade_number):
-        translations[i] = affine(images, 0, [dx, dx], 1, 0)
-        translations[i+1] = affine(images, 0, [dx, math.floor(dx/2)], 1, 0)
-        translations[i+2] = affine(images, 0, [2 * dx, 0], 1, 0)
-        translations[i+3] = affine(images, 0, [dx, 0], 1, 0)
-        translations[i] = affine(images, 0, [0, 0], 1, 0)
-
-        i += rest_time
+    # third saccade
+    last_duration = timesteps - 2*int(timesteps/3)
+    for _ in range(last_duration):
+        dx = max(0, dx - 2 * dx_step)  # avoid negative value
+        # print(dx, dy)
+        translations[i] = affine(
+            images, 0, [math.floor(dx), math.floor(dy)], 1, 0)
+        i += 1
 
     return spikegen.delta(translations, threshold=delta_threshold)
 
@@ -505,7 +486,7 @@ def latency(
             spike_time, num_steps, on_target=on_target, off_target=off_target
         )
 
-
+# Add version that uses a convultion of previous layer as well?
 def delta(
     data,
     threshold=0.1,
