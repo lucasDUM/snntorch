@@ -598,6 +598,7 @@ class DeltaCoding(object):
         self.alt = alt
 
     def __call__(self, data):
+        print(self.threshold)
         return delta(data, self.threshold, self.padding, self.off_spike, self.alt)
 
 
