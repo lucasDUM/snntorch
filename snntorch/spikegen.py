@@ -240,7 +240,7 @@ def phase():
     They analysed the firing probability of neurons in the cat visual cortex and identified a relation between the firing pattern and a reference oscillation.
     """
     pass
-    
+
 def rate(
     data, num_steps=False, gain=1, offset=0, first_spike_time=0, time_var_input=False
 ):
@@ -512,7 +512,7 @@ def delta(
     threshold=0.1,
     padding=False,
     off_spike=False,
-    alt=True
+    alt_order=True
 ):
     """Generate spike only when the difference between two subsequent time steps meets a threshold.
     Optionally include off_spikes for negative changes.
