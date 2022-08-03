@@ -579,8 +579,8 @@ def delta(
             data_offset = torch.cat((torch.zeros_like(data[:, 0]).unsqueeze(1), data), 1)[:, :-1]
 
         if not off_spike:
-            print("I do in fact get here LOL")
-            return torch.tensor ( torch.ones_like(data) * ((data - data_offset) >= threshold) )
+            print(type(torch.ones_like(data) * ((data - data_offset) >= threshold)))
+            return torch.ones_like(data) * ((data - data_offset) >= threshold)
 
         else:
             on_spk = torch.ones_like(data) * ((data - data_offset) >= threshold)
