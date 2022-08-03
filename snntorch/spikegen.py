@@ -194,17 +194,6 @@ def moving_window(data, threshold, window):
     return spikes, startpoint
 
 
-def temporal_contrast(data, method="step_forward", threshold=10, window=4):
-    # Locally referenced
-    # Similar to delat encoding in snnTorch
-    pass
-
-#def burst_reweighting(model: nn.Module, val: float) -> nn.Module:
-    #for parameter in model.parameters():
-        #parameter.register_hook(lambda grad: grad.clamp_(-val, val))
-    
-    #return model
-
 def burst_coding(images: torch.Tensor, N_max: int = 5, timesteps: int = 100, T_min: int = 2):
     # Compute N_s (the number of spikes per pixel)
     N_s = torch.ceil(N_max * images)
@@ -230,16 +219,6 @@ def burst_coding(images: torch.Tensor, N_max: int = 5, timesteps: int = 100, T_m
         N_s[mask] -= 1
 
     return S
-
-def phase():
-    """
-    Instead of a single reference point, phase coding encodes information in the relative time difference between spikes 
-    and a reference oscillation [36, 42]. The phase pattern repeats periodically if no changes between the cycles appeared. 
-    Each single neuron fires in respect to the reference signal and encodes the data similar to TTFS. 
-    Such a behaviour was detected by Gray, König, Engel, and Singer [31]. 
-    They analysed the firing probability of neurons in the cat visual cortex and identified a relation between the firing pattern and a reference oscillation.
-    """
-    pass
 
 def rate(
     data, num_steps=False, gain=1, offset=0, first_spike_time=0, time_var_input=False
