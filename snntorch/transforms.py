@@ -4,6 +4,7 @@ import random
 # VIDEO Transforms
 
 def crop(vid, i, j, h, w):
+    print(type(vid))
     return vid[..., i:(i + h), j:(j + w)]
 
 
