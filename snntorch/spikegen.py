@@ -546,7 +546,7 @@ def delta(
     :param off_spike: If ``True``, negative spikes for changes less than ``-threshold``, defaults to ``False``
     :type off_spike: bool, optional
 
-    :param alt: If ``True``, in Channel, Time, Data format, defaults to ``False``
+    :param alt: If ``True``, in Channel, Time, Data format, [channels x num_steps x batch x input_size] defaults to ``False``
     :type alt: bool, optional
     """
     #print(len(data))
