@@ -16,6 +16,16 @@ class DeltaCoding(object):
     def __call__(self, data):
         return spikegen.delta(data, self.threshold, self.padding, self.off_spike, self.alt_order)
 
+# Can handle Image data
+class BurstCoding(object):
+    def __init__(self, N_max = 5, timesteps = 100, T_min = 2):
+        self.N_max = N_max
+        self.timesteps = timesteps
+        self.T_min = T_min
+
+    def __call__(self, data):
+        return spikegen.burst_coding(data, self.N_max, self.timesteps, self.T_min)
+
 # Can handle Video data
 # Can handle Image data
 class RateCoding(object):
@@ -28,6 +38,7 @@ class RateCoding(object):
 
     def __call__(self, data):
         return spikegen.rate(data, self.num_steps, self.gain, self.offset, self.first_spike_time, self.time_var_input)
+
 
 # Can handle Image data
 class LatencyCoding(object):
@@ -47,6 +58,6 @@ class LatencyCoding(object):
         self.epsilon = epsilon
 
     def __call__(self, data):
-        return spikegen.rate(data, self.num_steps, self.threshold, self.tau, self.first_spike_time, self.on_target, self.off_target, 
+        return spikegen.latency(data, self.num_steps, self.threshold, self.tau, self.first_spike_time, self.on_target, self.off_target, 
                             self.clip, self.normalize, self.linear, self.interpolate, self.bypass, self.epsilon)
 

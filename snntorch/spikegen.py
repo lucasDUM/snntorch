@@ -3,8 +3,8 @@ import math
 import itertools
 import numpy as np
 # Add phase encoding and also phase reweighting scheme migh be fun:)
-# Burst weighting as well 
 # PSP or the current injection
+from torchvision.transforms.functional import affine
 
 dtype = torch.float
 
@@ -154,9 +154,9 @@ def phase_rate(data, pattern=False, premade = "simple2", offset = 0, window = 5,
 
     return spike_data
 
+# SF just uses the next available signal value and checks if the previous value and an additional threshold is exceeded. 
+# It sends out appropriate spikes depending on the polarity of the signal difference.
 def step_forward(data, threshold):
-    # SF just uses the next available signal value and checks if the previous value and an additional threshold is exceeded. 
-    #It sends out appropriate spikes depending on the polarity of the signal difference.
     # Based on algorithm provided in:
     #   Petro et al. (2020)
     startpoint = data[0]
@@ -193,26 +193,46 @@ def moving_window(data, threshold, window):
             spikes[i] = -1
     return spikes, startpoint
 
+def synchrony_coding(images: torch.Tensor, timesteps: int = 100, saccade_number: int = 3, delta_threshold: float = 0.1, dx: int = 2):
+    translations = torch.zeros((timesteps, *images.shape))
+    i = 0
+
+    # compute time between 2 saccades
+    rest_time = math.floor(timesteps / saccade_number)
+
+    for _ in range(saccade_number):
+        translations[i] = affine(images, 0, [dx, dx], 1, 0)
+        translations[i+1] = affine(images, 0, [dx, math.floor(dx/2)], 1, 0)
+        translations[i+2] = affine(images, 0, [2 * dx, 0], 1, 0)
+        translations[i+3] = affine(images, 0, [dx, 0], 1, 0)
+        translations[i] = affine(images, 0, [0, 0], 1, 0)
+
+        i += rest_time
+
+    return spikegen.delta(translations, threshold=delta_threshold)
 
 def burst_coding(images: torch.Tensor, N_max: int = 5, timesteps: int = 100, T_min: int = 2):
-    # Compute N_s (the number of spikes per pixel)
+
+    # Compute N_s (the number of spikes per pixel) based on intensity
     N_s = torch.ceil(N_max * images)
 
     # Compute ISI (the InterSpike Interval per pixel)
+    # The interspike interval is the time between subsequent spikes of a neuron
     ISI = torch.full_like(images, float(timesteps))
-
+    # If more than one spike per pixel replace that value with the timestep it will fire at
     ISI[N_s > 1.] = torch.ceil(-(timesteps - T_min)
                                * images[N_s > 1.] + timesteps)
 
-    # Reconstruct the spikes tensor with N_s and ISI
-    S = torch.zeros(
-        (timesteps, images.shape[0], images.shape[1], images.shape[2]))
-    #images.shape[3]
-    # first timesteps are full of 0s until T_min
+    # Reconstruct the spikes tensor with N_s and ISI: Time, channels, width, height
+    S = torch.zeros((timesteps, images.shape[0], images.shape[1], images.shape[2]))
 
+    # first timesteps are full of 0s until T_min
     distances = torch.zeros_like(ISI)  # separating two spikes for each pixels
+
     for i in range(timesteps):
+        # Check timestep and value
         mask = torch.logical_and(distances == ISI, N_s > 0)
+        # Current Timestep
         S[i] = mask.float()
         distances += 1
         distances[mask] = 0
