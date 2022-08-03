@@ -240,6 +240,7 @@ def phase():
     They analysed the firing probability of neurons in the cat visual cortex and identified a relation between the firing pattern and a reference oscillation.
     """
     pass
+    
 def rate(
     data, num_steps=False, gain=1, offset=0, first_spike_time=0, time_var_input=False
 ):
@@ -588,19 +589,6 @@ def delta(
             on_spk = torch.ones_like(data) * ((data - data_offset) >= threshold)
             off_spk = -torch.ones_like(data) * ((data - data_offset) <= -threshold)
             return on_spk + off_spk
-
-# Transforms
-class DeltaCoding(object):
-    def __init__(self, threshold=0.1, padding=False, off_spike=False, alt=True):
-        self.threshold = threshold
-        self.padding = padding
-        self.off_spike = off_spike
-        self.alt = alt
-
-    def __call__(self, data):
-        print(self.threshold)
-        return delta(data, self.threshold, self.padding, self.off_spike, self.alt)
-
 
 def rate_conv(data):
     """Convert tensor into Poisson spike trains using the features as the mean of a binomial distribution.
@@ -1640,3 +1628,6 @@ def from_one_hot(one_hot_label):
 
     one_hot_label = torch.where(one_hot_label == 1)[0]
     return one_hot_label
+
+
+
