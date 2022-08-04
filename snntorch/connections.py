@@ -107,6 +107,7 @@ class Linear_Burst(Module):
         return burst_modifier
     
     def forward(self, step: int, input: Tensor) -> Tensor:
+        print(step)
         if step==0:
             self.First=True
         print(self.First)
