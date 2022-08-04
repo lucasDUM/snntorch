@@ -17,6 +17,8 @@ from torch._torch_docs import reproducibility_notes
 from torch.nn.common_types import _size_1_t, _size_2_t, _size_3_t
 from typing import Optional, List, Tuple, Union
 
+import numpy as np
+
 __all__ = [
     'Identity',
     'Linear_Burst',
