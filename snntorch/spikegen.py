@@ -17,9 +17,6 @@ def find_splits(splits, step):
             break
     return temp
 
-def repeat_to_length(phase, wanted):
-    return (np.tile(phase, (wanted//len(phase) + 1)))[:wanted]
-
 def hybrid_encoding(data, separate=True, splits = [0.5, 0.5], encodings=["latency", "rate"], num_steps=False, time_var_input=False, tau=1, 
     threshold=0.01,clip=False, linear=False, interpolate=False, gain=1):
     """Hybrid encoding scheme of input data, using different encoding method at different time-steps based
@@ -66,45 +63,6 @@ def hybrid_encoding(data, separate=True, splits = [0.5, 0.5], encodings=["latenc
         low_count = 0
         high_count = 0
     return encoding_data
-
-def create_signal(size, pattern, premade, amplitude, offset, window):
-    if pattern:
-        if len(pattern) > size:
-            pattern = pattern[:, size]
-        # Do some checks
-    else:
-        if premade == "simple1":
-            # Digital signal
-            pattern = np.array([1, -1])
-        elif premade == "simple2":
-            # Digital signal
-            pattern = np.array([0, 1, -1])
-        elif premade == "simple3":
-            # Digital signal
-            pattern = np.array([0, 1, 0, -1])
-        elif premade == "simple4":
-            # Digital signal
-            pattern = np.array([0, -1])
-        elif premade == "simple5":
-            # Digital signal
-            pattern = np.array([0, 1])
-        elif premade == "exp":
-            # Sample from the exponential distribution
-            pattern = np.random.exponential(scale=1, size=(window))
-            negative_pattern = pattern*-1
-            pattern = np.concatenate((pattern, negative_pattern), axis=None)
-        elif premade == "gaussian":
-            pass
-            # Don't want to use sci-py and haven't implemented yet
-        else:
-            # Digital signal
-            pattern = np.array([1, -1])
-
-    pattern = pattern*amplitude
-    pattern = np.roll(pattern, offset)
-    phase = torch.tensor(repeat_to_length(pattern, size))
-
-    return phase
 
 def phase_rate(data, pattern=False, premade = "simple2", offset = 0, window = 5, gain = 1, amplitude = 1, additive = False, strength = 10, dampen = True, num_steps=False):
     if num_steps:
@@ -154,6 +112,40 @@ def phase_rate(data, pattern=False, premade = "simple2", offset = 0, window = 5,
 
     return spike_data
 
+def phase_coding(images: torch.Tensor, timesteps: int = 100, is_weighted: bool = False):
+    """Function that converts a grayscale image into spiketrains following the phase neural coding
+    presented in Deep neural networks with weighted spikes
+    Args:
+        image (np.ndarray): the grayscale image to convert of dimension (B, C, H, W)
+        timesteps (int, optional): the number of timesteps. Must be a multiple of 8 (required for the phases). Defaults to 100.
+        is_weighted (bool, optional): Flag that indicates whether the output spikes are weighted following the w_s parameter defined in the original paper. Defaults to True.
+    Returns:
+        np.ndarray: the spike tensor of dimension (T, H, W)
+    """
+    # compute number of periods
+    periods = (timesteps // 8) + 1
+
+    # convert to numpy because we have to
+    images = (images * 255).numpy().astype(np.uint8)
+
+    # binary representation of the image (it makes 8 )
+    bit_representation = np.unpackbits(
+        images[..., None], axis=-1).transpose(-1, 0, 1, 2, 3).astype(np.float32)
+
+    # IF the weighted input option is used
+    if is_weighted:
+        # obtained with the equation seen in the referenced paper
+        w_s = [0.5, 0.25, 0.125, 0.0625, 0.0313,
+               0.015625, 0.0078125, 0.00390625]
+        for i, weight in enumerate(w_s):
+            bit_representation[i, :, :, :,
+                               :] = bit_representation[i, :, :, :, :] * weight
+
+    # Repeat the bit representation to create the final output spikes
+    S = np.tile(bit_representation, (periods, 1, 1, 1, 1))[
+        0:timesteps, :, :, :, :]
+
+    return torch.from_numpy(S)
 def saccade_coding(images: torch.Tensor, timesteps: int = 100, max_dx: int = 20, max_dy: int = 20, delta_threshold=0.1):
     dx_step = max_dx / (2 * timesteps)  # pixel distance per timestep
     dy_step = max_dy / timesteps

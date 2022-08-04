@@ -24,6 +24,9 @@ __all__ = [
     'Conv2d_Burst'
 ]
 
+def repeat_to_length(phase, wanted):
+    return (np.tile(phase, (wanted//len(phase) + 1)))[:wanted]
+
 
 class Identity(Module):
     r"""A placeholder identity operator that is argument-insensitive.
@@ -94,18 +97,23 @@ class Linear_Burst(Module):
             self.First = False
             burst_modifier = torch.ones_like(input_)
         else:
+            # Check for each neuron if it fired previously
             mask = torch.eq(input_, self.prev_spike, out=None)
+            # Add burst scaling
             modifier = burst_constant*mask
+            # Turn any 0s back into 1s since this will be element wise multiplied later
             burst_modifier = modifier[modifier==0] = 1
+        # Adapted threshold
         return burst_modifier
     
     def forward(self, input: Tensor) -> Tensor:
+        print(self.First)
         # Add burst re_weighting here
         # Input data will be in shape Batch, channel, image
         # The Input data will be a spike train
         # Return Threshold as well
         threshold = self.burst_function(self.burst_constant, input)
-        return F.linear(input*threshold, self.weight, self.bias), threshold
+        return F.linear(input, self.weight*threshold.T, self.bias), threshold
 
     def extra_repr(self) -> str:
         return 'in_features={}, out_features={}, bias={}'.format(
@@ -129,8 +137,8 @@ class Linear_Phase(Module):
         self.out_features = out_features
         self.burst_constant = burst_constant
         self.weight = Parameter(torch.empty((out_features, in_features), **factory_kwargs))
-        self.prev_spike = torch.tensor(0)
         self.First = True
+        self.counter = 0
 
         if bias:
             self.bias = Parameter(torch.empty(out_features, **factory_kwargs))
@@ -148,9 +156,32 @@ class Linear_Phase(Module):
             bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
             init.uniform_(self.bias, -bound, bound)
 
+    def create_signal(size, pattern, premade, amplitude=1, offset=0):
+        if pattern:
+            if len(pattern) > size:
+                pattern = pattern[:, size]
+        else:
+            # Digital signals
+            if premade == "simple1":  
+                pattern = np.array([1, 0.5, 0, 0.5, 1])
+            elif premade == "simple2":
+                pattern = np.array([1, 0.75, 0.5, 0.25, 0, 0.25, 0.5, 0.75, 1])
+            elif premade == "complex1":
+                pattern = np.array([2, 1.5, 1, 0.5, 0, 0.5, 1, 1.5, 2])
+            elif premade == "complex2":
+                pattern = np.array([2, 1.75, 1.5, 1.25, 1, 0.75, 0.5, 0.25, 0, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2])
+            else:
+                pattern = np.array([1, 0.5, 0, 0.5, 1])
+
+        pattern = pattern*amplitude
+        pattern = np.roll(pattern, offset)
+        phase = torch.tensor(repeat_to_length(pattern, size))
+
+        return phase
+
     def phase_function(self, period, step, input):
-        burst_modifier = torch.ones_like(input)
-        phase = 2^-(1+ step % period)
+        if self.First:
+            break
         return phase * burst_modifier
 
     def forward(self, input: Tensor) -> Tensor:
