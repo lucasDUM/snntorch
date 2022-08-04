@@ -151,7 +151,7 @@ class Linear_Phase(Module):
             bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
             init.uniform_(self.bias, -bound, bound)
 
-    def create_signal(size, pattern, premade, amplitude=1, offset=0):
+    def create_signal(self, size, pattern, premade, amplitude=1, offset=0):
         if pattern:
             if len(pattern) > size:
                 pattern = pattern[:, size]
