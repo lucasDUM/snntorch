@@ -90,7 +90,7 @@ class Linear_Burst(Module):
             fan_in, _ = init._calculate_fan_in_and_fan_out(self.weight)
             bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
             init.uniform_(self.bias, -bound, bound)
-    
+
     def burst_function(self, burst_constant, input_):
         self.prev_spike = input_
         if self.First:
@@ -136,8 +136,6 @@ class Linear_Phase(Module):
         self.out_features = out_features
         self.burst_constant = burst_constant
         self.weight = Parameter(torch.empty((out_features, in_features), **factory_kwargs))
-        self.First = True
-        self.counter = 0
 
         if bias:
             self.bias = Parameter(torch.empty(out_features, **factory_kwargs))
@@ -178,17 +176,11 @@ class Linear_Phase(Module):
 
         return phase
 
-    def phase_function(self, period, step, input):
-        if self.First:
-            #break
-            pass
-        return 0
-
-    def forward(self, input: Tensor) -> Tensor:
-        # Add burst re_weighting here
-        # Input data will be in shape Batch, channel, image
-        # The Input data will be a spike train
-        return F.linear(input * self.burst_function(self.burst_constant, input), self.weight, self.bias)
+    def forward(self, step, num_steps, input: Tensor) -> Tensor:
+        # Phase function
+        threshold = self.create_signal(num_steps, False, "simple1", 1, 0)[step]
+        # Add phase re_weighting here
+        return F.linear(input * threshold, self.weight, self.bias)
 
     def extra_repr(self) -> str:
         return 'in_features={}, out_features={}, bias={}'.format(
