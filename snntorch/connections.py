@@ -182,6 +182,7 @@ class Linear_Phase(Module):
     def phase_function(self, period, step, input):
         if self.First:
             #break
+            pass
         return 0
 
     def forward(self, input: Tensor) -> Tensor:
