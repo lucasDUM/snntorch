@@ -90,7 +90,7 @@ class Linear_Burst(Module):
             fan_in, _ = init._calculate_fan_in_and_fan_out(self.weight)
             bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
             init.uniform_(self.bias, -bound, bound)
-
+    
     def burst_function(self, burst_constant, input_):
         self.prev_spike = input_
         if self.First:
@@ -373,6 +373,8 @@ class Conv2d_Burst(_ConvNd):
         return F.conv2d(input, weight, bias, self.stride,
                         self.padding, self.dilation, self.groups)
 
-    def forward(self, input: Tensor) -> Tensor:
+    def forward(self, step, input: Tensor) -> Tensor:
+        if step==0:
+            self.First=True
         threshold = self.burst_function(self.burst_constant, input)
         return self._conv_forward(input*threshold, self.weight, self.bias), threshold
