@@ -125,16 +125,14 @@ class Linear_Phase(Module):
     __constants__ = ['in_features', 'out_features', 'burst_constant']
     in_features: int
     out_features: int
-    burst_constant: int
     weight: Tensor
 
-    def __init__(self, in_features: int, out_features: int, burst_constant: int, bias: bool = True,
+    def __init__(self, in_features: int, out_features: int, bias: bool = True,
                  device=None, dtype=None) -> None:
         factory_kwargs = {'device': device, 'dtype': dtype}
-        super(Linear_Burst, self).__init__()
+        super(Linear_Phase, self).__init__()
         self.in_features = in_features
         self.out_features = out_features
-        self.burst_constant = burst_constant
         self.weight = Parameter(torch.empty((out_features, in_features), **factory_kwargs))
 
         if bias:
