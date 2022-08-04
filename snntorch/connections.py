@@ -176,7 +176,7 @@ class Linear_Phase(Module):
 
     def forward(self, step, num_steps, input: Tensor) -> Tensor:
         # Phase function
-        threshold = self.create_signal(num_steps, False, "simple1", 1, 0)[step]
+        threshold = self.create_signal(num_steps, False, "simple1")[step]
         # Add phase re_weighting here
         return F.linear(input * threshold, self.weight, self.bias)
 
