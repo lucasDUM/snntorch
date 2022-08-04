@@ -113,7 +113,7 @@ class Linear_Burst(Module):
         # The Input data will be a spike train
         # Return Threshold as well
         threshold = self.burst_function(self.burst_constant, input)
-        return F.linear(input, threshold*self.weight, self.bias), threshold
+        return F.linear(input, threshold*self.weight.T, self.bias), threshold
 
     def extra_repr(self) -> str:
         return 'in_features={}, out_features={}, bias={}'.format(
