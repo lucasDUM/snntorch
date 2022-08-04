@@ -106,8 +106,7 @@ class Linear_Burst(Module):
         # Adapted threshold
         return burst_modifier
     
-    def forward(self, step: int, input: Tensor) -> Tensor:
-        print(step)
+    def forward(self, input: Tensor, step: int) -> Tensor:
         if step==0:
             self.First=True
         print(self.First)
