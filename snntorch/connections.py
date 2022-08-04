@@ -107,13 +107,10 @@ class Linear_Burst(Module):
         return burst_modifier
     
     def forward(self, step, input: Tensor) -> Tensor:
+        # Reset burst function
         if step==0:
             self.First=True
-        print(self.First)
-        # Add burst re_weighting here
-        # Input data will be in shape Batch, channel, image
-        # The Input data will be a spike train
-        # Return Threshold as well
+        # Add burst re_weighting
         threshold = self.burst_function(self.burst_constant, input)
         return F.linear(input*threshold, self.weight, self.bias), threshold
 
