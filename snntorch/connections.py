@@ -106,7 +106,9 @@ class Linear_Burst(Module):
         # Adapted threshold
         return burst_modifier
     
-    def forward(self, input: Tensor) -> Tensor:
+    def forward(self, step, input: Tensor) -> Tensor:
+        if step==0:
+            self.First=True
         print(self.First)
         # Add burst re_weighting here
         # Input data will be in shape Batch, channel, image
