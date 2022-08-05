@@ -64,54 +64,6 @@ def hybrid_encoding(data, separate=True, splits = [0.5, 0.5], encodings=["latenc
         high_count = 0
     return encoding_data
 
-def phase_rate(data, pattern=False, premade = "simple2", offset = 0, window = 5, gain = 1, amplitude = 1, additive = False, strength = 10, dampen = True, num_steps=False):
-    if num_steps:
-        size = num_steps
-    else:
-        size = data.size(0)
-
-    if window > size:
-        window = size
-
-    phase = create_signal(size=size, pattern=pattern, premade=premade, amplitude=amplitude, offset=0, window=window)
-    
-    time_data = (
-        data.repeat(
-            tuple([num_steps] + torch.ones(len(data.size()), dtype=int).tolist())
-        )
-        * gain
-    )
-
-    if dampen:
-        if additive:
-            for i in range(size):
-                if phase[i] >= 0:
-                    continue
-                time_data[i] = phase[i]/strength + time_data[i]
-        else:
-            for i in range(size):
-                if phase[i] <= 0:
-                    continue
-                time_data[i] = (1-(phase[i]/strength)) * time_data[i]
-    else:
-        if additive:
-            for i in range(size):
-                if phase[i] == 0:
-                    continue
-                time_data[i] = phase[i]/strength + time_data[i]
-        else:
-            for i in range(size):
-                if phase[i] == 0:
-                    continue
-                time_data[i] = (1-(phase[i]/strength)) * time_data[i]
-
-    # Clip all features between 0 and 1 so they can be used as probabilities.
-    clipped_data = torch.clamp(time_data, min=0, max=1)
-    # pass time_data matrix into bernoulli function.
-    spike_data = torch.bernoulli(clipped_data)
-
-    return spike_data
-
 def phase_coding(images: torch.Tensor, timesteps: int = 100, is_weighted: bool = False):
     """Function that converts a grayscale image into spiketrains following the phase neural coding
     presented in Deep neural networks with weighted spikes
@@ -146,6 +98,7 @@ def phase_coding(images: torch.Tensor, timesteps: int = 100, is_weighted: bool =
         0:timesteps, :, :, :, :]
 
     return torch.from_numpy(S)
+
 def saccade_coding(images: torch.Tensor, timesteps: int = 100, max_dx: int = 20, max_dy: int = 20, delta_threshold=0.1):
     dx_step = max_dx / (2 * timesteps)  # pixel distance per timestep
     dy_step = max_dy / timesteps
@@ -182,7 +135,7 @@ def saccade_coding(images: torch.Tensor, timesteps: int = 100, max_dx: int = 20,
             images, 0, [math.floor(dx), math.floor(dy)], 1, 0)
         i += 1
 
-    return spikegen.delta(translations, threshold=delta_threshold)
+    return spikegen.delta(translations, threshold=delta_threshold, alt_order=True)
 
 def burst_coding(images: torch.Tensor, N_max: int = 5, timesteps: int = 100, T_min: int = 2):
 
@@ -212,6 +165,56 @@ def burst_coding(images: torch.Tensor, N_max: int = 5, timesteps: int = 100, T_m
         N_s[mask] -= 1
 
     return S
+
+# Add version that uses a convultion of previous layer as well?
+
+def convolution ():
+    passdef delta_window(
+    data,
+    threshold=0.1,
+    padding=False,
+    off_spike=False,
+    alt_order=True,
+    kernel = 3
+):
+    # Average filter
+
+    if not alt:
+        if padding:
+            data_offset = torch.cat((data[0].unsqueeze(0), data))[
+                :-1
+            ]  # duplicate first time step, remove final step
+        else:
+            data_offset = torch.cat((torch.zeros_like(data[0]).unsqueeze(0), data))[
+                :-1
+            ]  # add 0's to first step, remove final step
+
+        if not off_spike:
+            return torch.ones_like(data) * ((data - data_offset) >= threshold)
+
+        else:
+            on_spk = torch.ones_like(data) * ((data - data_offset) >= threshold)
+            off_spk = -torch.ones_like(data) * ((data - data_offset) <= -threshold)
+            return on_spk + off_spk
+    else:
+        if padding:
+            data_offset = torch.cat((data[0].unsqueeze(0), data))[
+                :-1
+            ]  # duplicate first time step, remove final step
+        else:
+            # 3, 16, 172, 172
+            data_offset = torch.cat((torch.zeros_like(data[:, 0]).unsqueeze(1), data), 1)[:, :-1]
+
+        if not off_spike:
+            print(threshold)
+            print(type(threshold))
+            print(type(data - data_offset))
+            return torch.ones_like(data) * ((data - data_offset) >= threshold)
+
+        else:
+            on_spk = torch.ones_like(data) * ((data - data_offset) >= threshold)
+            off_spk = -torch.ones_like(data) * ((data - data_offset) <= -threshold)
+            return on_spk + off_spk
 
 def rate(
     data, num_steps=False, gain=1, offset=0, first_spike_time=0, time_var_input=False
@@ -478,7 +481,6 @@ def latency(
             spike_time, num_steps, on_target=on_target, off_target=off_target
         )
 
-# Add version that uses a convultion of previous layer as well?
 def delta(
     data,
     threshold=0.1,

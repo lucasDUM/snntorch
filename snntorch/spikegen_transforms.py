@@ -6,6 +6,17 @@ from snntorch import spikegen
 dtype = torch.float
 
 # Can handle Video data
+class SaccadeCoding(object):
+    def __init__(self, timesteps=100, max_dx=20, max_dy=20, delta_threshold=0.1):
+        self.timesteps = timesteps
+        self.max_dx = max_dx
+        self.max_dy = max_dy
+        self.delta_threshold = delta_threshold
+
+    def __call__(self, data):
+        return spikegen.saccade_coding(data, self.timesteps, self.max_dx, self.max_dy, self.delta_threshold)
+
+# Can handle Video data
 class DeltaCoding(object):
     def __init__(self, threshold=0.1, padding=False, off_spike=False, alt_order=True):
         self.threshold = threshold
@@ -15,6 +26,15 @@ class DeltaCoding(object):
 
     def __call__(self, data):
         return spikegen.delta(data, self.threshold, self.padding, self.off_spike, self.alt_order)
+
+# Can handle Image data
+class PhaseCoding(object):
+    def __init__(self, timesteps, is_weighted=False):
+        self.timesteps = timesteps
+        self.is_weighted = is_weighted
+
+    def __call__(self, images: torch.Tensor) -> torch.Tensor:
+        return spikegen.phase_coding(images, self.timesteps, self.is_weighted)
 
 # Can handle Image data
 class BurstCoding(object):
