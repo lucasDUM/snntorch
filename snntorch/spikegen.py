@@ -223,6 +223,7 @@ def delta_convolution (data, threshold=0.1, padding=False, off_spike=False, alt_
         pass
     else:
         # is colour seperate wach channels ten combine them at teh end LOLOLOLPOLLOL
+        pass
 
 def rate(
     data, num_steps=False, gain=1, offset=0, first_spike_time=0, time_var_input=False
