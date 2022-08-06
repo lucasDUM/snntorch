@@ -8,6 +8,50 @@ from torchvision.transforms.functional import affine
 
 dtype = torch.float
 
+def rgb2gray(rgb):
+    r, g, b = rgb[:,:,0], rgb[:,:,1], rgb[:,:,2]
+    gray = 0.2989 * r + 0.5870 * g + 0.1140 * b
+    return gray
+
+def convolve(image, kernel, padding, stride, preset):
+    # Assuming a rectangular image
+    # Gather Shapes of Kernel + Image + Padding
+    if preset:
+        kernel = kernel
+    else:
+        kernel = np.ones((kernel, kernel))/kernel**2
+    # To simplify things
+    k = kernel.shape[0]
+
+    xImgShape = image.shape[0]
+    yImgShape = image.shape[1]
+
+    x=y=0
+    # Shape of Output Convolution
+    xOutput = int(((xImgShape - k + 2 * padding) / stride) + 1)
+    yOutput = int(((yImgShape - k + 2 * padding) / stride) + 1)
+    
+    # 2D array of zeros
+    convolved_img = np.zeros(shape=(xOutput, yOutput))
+    
+    # Iterate over the rows
+    for i in range(0, xImgShape, stride):
+        # Iterate over the columns
+        y=0
+        for j in range(0, yImgShape, stride):
+            # img[i, j] = individual pixel value
+            # Get the current matrix
+            mat = image[i:i+k, j:j+k]
+            # Apply the convolution - element-wise multiplication and summation of the result
+            # Store the result to i-th row and j-th column of our convolved_img array
+            if mat.shape!= (5,5):
+                break
+            convolved_img[x, y] = np.sum(np.multiply(mat, kernel))
+            y+=1
+        x+=1
+            
+    return torch.tensor((convolved_img))
+
 def find_splits(splits, step):
     temp = []
     total_list = [math.ceil(a * step) for a in splits] + [math.floor(a * step) for a in splits]
@@ -168,53 +212,17 @@ def burst_coding(images: torch.Tensor, N_max: int = 5, timesteps: int = 100, T_m
 
 # Add version that uses a convultion of previous layer as well?
 
-def convolution ():
-    passdef delta_window(
-    data,
-    threshold=0.1,
-    padding=False,
-    off_spike=False,
-    alt_order=True,
-    kernel = 3
-):
+def delta_convolution (data, threshold=0.1, padding=False, off_spike=False, alt_order=True, kernel = 5, stride = 2, greyscale=False):
+    # convolve(image, kernel, padding, stride, preset):
+    # Image wise
     # Average filter
+    # If spike prevoously don't spike again next time step
+    # def rgb2gray(rgb):
 
-    if not alt:
-        if padding:
-            data_offset = torch.cat((data[0].unsqueeze(0), data))[
-                :-1
-            ]  # duplicate first time step, remove final step
-        else:
-            data_offset = torch.cat((torch.zeros_like(data[0]).unsqueeze(0), data))[
-                :-1
-            ]  # add 0's to first step, remove final step
-
-        if not off_spike:
-            return torch.ones_like(data) * ((data - data_offset) >= threshold)
-
-        else:
-            on_spk = torch.ones_like(data) * ((data - data_offset) >= threshold)
-            off_spk = -torch.ones_like(data) * ((data - data_offset) <= -threshold)
-            return on_spk + off_spk
+    if greyscale:
+        pass
     else:
-        if padding:
-            data_offset = torch.cat((data[0].unsqueeze(0), data))[
-                :-1
-            ]  # duplicate first time step, remove final step
-        else:
-            # 3, 16, 172, 172
-            data_offset = torch.cat((torch.zeros_like(data[:, 0]).unsqueeze(1), data), 1)[:, :-1]
-
-        if not off_spike:
-            print(threshold)
-            print(type(threshold))
-            print(type(data - data_offset))
-            return torch.ones_like(data) * ((data - data_offset) >= threshold)
-
-        else:
-            on_spk = torch.ones_like(data) * ((data - data_offset) >= threshold)
-            off_spk = -torch.ones_like(data) * ((data - data_offset) <= -threshold)
-            return on_spk + off_spk
+        # is colour seperate wach channels ten combine them at teh end LOLOLOLPOLLOL
 
 def rate(
     data, num_steps=False, gain=1, offset=0, first_spike_time=0, time_var_input=False
