@@ -571,7 +571,7 @@ def delta(
     #print(type(data))
     #print(data.size())
 
-    if not alt:
+    if not alt_order:
         if padding:
             data_offset = torch.cat((data[0].unsqueeze(0), data))[
                 :-1
