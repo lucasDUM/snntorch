@@ -40,7 +40,7 @@ class SaccadeCoding(object):
 
 # Can handle Video data
 class DeltaCoding(object):
-    def __init__(self, threshold=0.1, padding=False, off_spike=False, alt_order=True):
+    def __init__(self, threshold = 0.1, padding=False, off_spike=False, alt_order=True):
         self.threshold = threshold
         self.padding = padding
         self.off_spike = off_spike
