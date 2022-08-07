@@ -120,7 +120,7 @@ def phase_coding(images: torch.Tensor, timesteps: int = 100, is_weighted: bool =
     """Function that converts a grayscale image into spiketrains following the phase neural coding
     presented in Deep neural networks with weighted spikes
     Args:
-        image (np.ndarray): the grayscale image to convert of dimension (B, C, H, W)
+        image (np.ndarray): the grayscale image to convert of dimension (C, H, W)
         timesteps (int, optional): the number of timesteps. Must be a multiple of 8 (required for the phases). Defaults to 100.
         is_weighted (bool, optional): Flag that indicates whether the output spikes are weighted following the w_s parameter defined in the original paper. Defaults to True.
     Returns:
@@ -136,8 +136,7 @@ def phase_coding(images: torch.Tensor, timesteps: int = 100, is_weighted: bool =
     images = (images * 255).numpy().astype(np.uint8)
 
     # binary representation of the image (it makes 8 )
-    bit_representation = np.unpackbits(
-        images[..., None], axis=-1).transpose(-1, 0, 1, 2, 3).astype(np.float32)
+    bit_representation = np.unpackbits(images[..., None], axis=-1).transpose(-1, 0, 1, 2).astype(np.float32)
 
     # IF the weighted input option is used
     if is_weighted:
@@ -145,12 +144,10 @@ def phase_coding(images: torch.Tensor, timesteps: int = 100, is_weighted: bool =
         w_s = [0.5, 0.25, 0.125, 0.0625, 0.0313,
                0.015625, 0.0078125, 0.00390625]
         for i, weight in enumerate(w_s):
-            bit_representation[i, :, :, :,
-                               :] = bit_representation[i, :, :, :, :] * weight
+            bit_representation[i, :, :, :] = bit_representation[i, :, :, :] * weight
 
     # Repeat the bit representation to create the final output spikes
-    S = np.tile(bit_representation, (periods, 1, 1, 1, 1))[
-        0:timesteps, :, :, :, :]
+    S = np.tile(bit_representation, (periods, 1, 1, 1))[0:timesteps, :, :, :]
 
     return torch.from_numpy(S)
 
