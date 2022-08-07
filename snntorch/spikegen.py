@@ -16,6 +16,8 @@ def rgb2gray(rgb):
 def convolve(image, kernel, padding, stride, preset):
     # Assuming a rectangular image
     # Gather Shapes of Kernel + Image + Padding
+
+    image = image.numpy()
     if preset:
         kernel = kernel
     else:
@@ -60,9 +62,11 @@ def find_splits(splits, step):
             temp = subset
             break
     return temp
+def hybrid_encoding_scaling():
+    pass
 
-def hybrid_encoding(data, separate=True, splits = [0.5, 0.5], encodings=["latency", "rate"], num_steps=False, time_var_input=False, tau=1, 
-    threshold=0.01,clip=False, linear=False, interpolate=False, gain=1):
+def hybrid_encoding_image(data, separate=True, splits = [0.5, 0.5], encodings=["latency", "rate"], num_steps=False, time_var_input=False, tau=1, 
+    threshold=0.01, clip=False, linear=False, interpolate=False, gain=1):
     """Hybrid encoding scheme of input data, using different encoding method at different time-steps based
     """
     if len(splits) != len(encodings):
@@ -89,6 +93,10 @@ def hybrid_encoding(data, separate=True, splits = [0.5, 0.5], encodings=["latenc
                 temp = latency(data, num_steps=data_split[steps], normalize=True, linear=linear, tau=tau, interpolate=interpolate, clip=clip, threshold=threshold)
             elif encodings[steps] == "rate":
                 temp = rate(data, num_steps=data_split[steps], gain=gain)
+            elif encodings[steps] == "phase":
+                pass
+            elif encodings[steps] == "burst":
+                pass
             else:
                 print("Encoding method not recognised")
             encoding_data = torch.cat((encoding_data, temp))
@@ -212,18 +220,46 @@ def burst_coding(images: torch.Tensor, N_max: int = 5, timesteps: int = 100, T_m
 
 # Add version that uses a convultion of previous layer as well?
 
-def delta_convolution (data, threshold=0.1, padding=False, off_spike=False, alt_order=True, kernel = 5, stride = 2, greyscale=False):
+def delta_convolution (data, threshold=0.1, padding=False, off_spike=False, kernel = 5, greyscale=False, video=True, delta=True):
+    # IF not video do like decreasing rate coding based on how strong the threshold is :)
+
     # convolve(image, kernel, padding, stride, preset):
     # Image wise
     # Average filter
     # If spike prevoously don't spike again next time step
     # def rgb2gray(rgb):
+    stride = math.ceil(kernel)
+    # Doesn't need to exists
+    data = torch.tensor((data))
 
+    # With all imesteps 
+    # Set thuis based on colour or grey scale
+    output = torch.ones_like(data[0], convolve(data[0], kernel, padding, stride, preset))
     if greyscale:
-        pass
+        data = data.squeeze()
+        # Loop through time data
+        for count, image in enumerate(data):
+            # Add data to output
+            output[count]*(convolve(image, kernel, padding, stride, preset) >= threshold)
+
+        if delta:
+            # This is binary spike data to the thresold doesnt matter
+            output[1:] = spikegen.delta(data, 0.1, 0, 0, False)[1:]
+        else:
+            pass
+        
     else:
-        # is colour seperate wach channels ten combine them at teh end LOLOLOLPOLLOL
+        # is colour seperate which channels ten combine them at teh end LOLOLOLPOLLOL
+        R = data[0]
+        G = data[1]
+        B = data[2]
+
+        for count, image in enumerate(data):
+            # Add data to output
+            output[count]*(convolve(image, kernel, padding, stride, preset) >= threshold)
         pass
+
+    return output
 
 def rate(
     data, num_steps=False, gain=1, offset=0, first_spike_time=0, time_var_input=False
@@ -563,9 +599,6 @@ def delta(
             data_offset = torch.cat((torch.zeros_like(data[:, 0]).unsqueeze(1), data), 1)[:, :-1]
 
         if not off_spike:
-            print(threshold)
-            print(type(threshold))
-            print(type(data - data_offset))
             return torch.ones_like(data) * ((data - data_offset) >= threshold)
 
         else:
