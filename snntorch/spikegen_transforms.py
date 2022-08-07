@@ -5,6 +5,29 @@ from snntorch import spikegen
 
 dtype = torch.float
 
+# Can handle Image data
+class hybrid_encoding_image(object):
+    def __init__(self, separate=True, splits = [0.5, 0.5], encodings=["latency", "rate"], 
+                num_steps=False, time_var_input=False, tau=1, threshold=0.01, clip=False, linear=False, interpolate=False, gain=1):
+        self.separate = separate
+        self.splits = splits
+        self.encodings = encodings
+        self.num_steps = num_steps
+        self.time_var_input = time_var_input
+        self.tau = tau
+        self.threshold = threshold
+        self.clip = clip
+        self.linear = linear
+        self.interpolate = interpolate
+        self.gain = gain
+
+    def __call__(self, data):
+        return spikegen.hybrid_encoding_image(data, self.separate, self.splits, self.encodings, self.num_steps, self.time_var_input, 
+                                            self.tau, self.threshold, self.clip, self.linear, self.interpolate, self.gain)
+
+        hybrid_encoding_image(data, separate=True, splits = [0.5, 0.5], encodings=["latency", "rate"], num_steps=False, time_var_input=False, tau=1, threshold=0.01, clip=False, linear=False, interpolate=False, gain=1):
+
+
 # Can handle Video data
 class SaccadeCoding(object):
     def __init__(self, timesteps=100, max_dx=20, max_dy=20, delta_threshold=0.1):

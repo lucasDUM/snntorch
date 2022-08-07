@@ -127,9 +127,12 @@ def phase_coding(images: torch.Tensor, timesteps: int = 100, is_weighted: bool =
         np.ndarray: the spike tensor of dimension (T, H, W)
     """
     # compute number of periods
+
+    print(images.size())
     periods = (timesteps // 8) + 1
 
     # convert to numpy because we have to
+    # Un normliase it 
     images = (images * 255).numpy().astype(np.uint8)
 
     # binary representation of the image (it makes 8 )
