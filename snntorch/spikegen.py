@@ -128,7 +128,6 @@ def phase_coding(images: torch.Tensor, timesteps: int = 100, is_weighted: bool =
     """
     # compute number of periods
 
-    print(images.size())
     periods = (timesteps // 8) + 1
 
     # convert to numpy because we have to
