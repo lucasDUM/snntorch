@@ -26,7 +26,6 @@ class hybrid_encoding_image(object):
                                             self.tau, self.threshold, self.clip, self.linear, self.interpolate, self.gain)
 
 
-
 # Can handle Video data
 class SaccadeCoding(object):
     def __init__(self, timesteps=100, max_dx=20, max_dy=20, delta_threshold=0.1):
