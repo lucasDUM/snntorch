@@ -77,3 +77,19 @@ class Burst_SNN(nn.Module):
 
 # Temporal-Coded Deep Spiking Neural Network with Easy Training and Robust Performance
 #https://github.com/zbs881314/Temporal-Coded-Deep-SNN
+
+# SCNN(5,32,2) → SCNN(5,16,2) → FC(10)
+#CIFAR-10 SpikingVGG16: SCNN(3,64,1) → SCNN(3,64,1) → MP(2) → SCNN(3,128,1) → SCNN(3,128,1)
+#→ MP(2) → SCNN(3,256,1) → SCNN(3,256,1) → SCNN(3,256,1) → MP(2) → SCNN(3,512,1)
+#→ SCNN(3,512,1) → SCNN(3,512,1) → MP(2) → SCNN(3,1024,1) → SCNN(3,1024,1)
+#→ SCNN(3,1024,1) → MP(2) → FC(4096) → FC(4096) → FC(512) → FC(10)
+#
+
+# Revisiting Batch Normalization for Training Low-Latency Deep Spiking Neural Networks From Scratch
+# VGG9
+
+# The Remarkable Robustness of Surrogate Gradient Learning for Instilling Complex Function in Spiking Neural Networks
+#mnist 
+#784 
+#100 
+#10
