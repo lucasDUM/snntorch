@@ -42,7 +42,7 @@ class MNIST_SNN(nn.Module):
         self.lif1 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
         self.lif2 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True, output=True)
 
-        self.fc1 = nn.Linear((self.batch_size, 784), 100)
+        self.fc1 = nn.Linear([self.batch_size, 784], 100)
         self.fc2 = nn.Linear(100, 10)
 
     def forward(self, x):
