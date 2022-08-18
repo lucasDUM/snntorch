@@ -25,6 +25,7 @@ class MNIST_SNN(nn.Module):
         spk_rec = []
         for step in range(self.num_steps):
             start = x[:, step].view(self.batch_size, -1)
+            print(start.size())
             current1 = self.fc1(start)
             spk1 = self.lif1(current1)
             current2 = self.fc1(spk1)
