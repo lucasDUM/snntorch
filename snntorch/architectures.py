@@ -9,7 +9,7 @@ import snntorch as snn
 from snntorch import connections
 
 class MNIST_SNN(nn.Module):
-    def __init__(self, beta, threshold, spike_grad, init_hidden, num_steps):
+    def __init__(self, beta, threshold, spike_grad, init_hidden, num_steps, batch_size):
         super().__init__()
         self.num_steps = num_steps
         # Initialize layers
@@ -23,8 +23,7 @@ class MNIST_SNN(nn.Module):
         # Record the final layer
         spk_rec = []
         for step in range(self.num_steps):
-            start = x[:, step]
-
+            start = x[:, step].view(batch_size, -1)
             current1 = self.fc1(start)
             spk1 = self.lif1(current1)
             current2 = self.fc1(spk1)
