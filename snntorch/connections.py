@@ -91,7 +91,7 @@ class Linear_Test(Module):
 
     def forward(self, input: Tensor) -> Tensor:
 
-        return F.linear(input, self.weight, self.bias), threshold
+        return F.linear(input, self.weight, self.bias)
 
     def extra_repr(self) -> str:
         return 'in_features={}, out_features={}, bias={}'.format(
