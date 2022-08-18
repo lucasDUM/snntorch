@@ -9,9 +9,9 @@ import snntorch as snn
 from snntorch import connections
 
 class MNIST_SNN(nn.Module):
-    def __init__(self):
+    def __init__(self, beta, threshold, spike_grad, init_hidden, num_steps):
         super().__init__()
-
+        self.num_steps = num_steps
         # Initialize layers
         self.lif1 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
         self.lif2 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True, output=True)
@@ -19,10 +19,10 @@ class MNIST_SNN(nn.Module):
         self.fc1 = nn.Linear(784, 100)
         self.fc2 = nn.Linear(100, 10)
 
-    def forward(self, x, num_steps):
+    def forward(self, x):
         # Record the final layer
         spk_rec = []
-        for step in range(num_steps):
+        for step in range(self.num_steps):
             start = x[:, step]
 
             current1 = self.fc1(start)
