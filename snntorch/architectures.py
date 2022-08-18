@@ -24,6 +24,7 @@ class MNIST_SNN_TEST(nn.Module):
         # Record the final layer
         spk_rec = []
         for step in range(self.num_steps):
+            print(step)
             start = x[:, step].view(self.batch_size, -1)
             current1 = self.fc1(start)
             spk1 = self.lif1(current1)
