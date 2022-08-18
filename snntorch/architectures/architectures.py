@@ -1,4 +1,102 @@
-class Burst_SNN(nn.Module):
+#######################################################################
+################################ MNIST ################################
+#######################################################################
+
+class MNIST_SNN(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        # Initialize layers
+        self.lif1 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif2 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True, output=True)
+
+        self.fc1 = nn.Linear(784, 100)
+        self.fc2 = nn.Linear(100, 10)
+
+    def forward(self, x, num_steps):
+        # Record the final layer
+        spk_rec = []
+        for step in range(num_steps):
+            start = x[:, step]
+
+            current1 = self.fc1(start)
+            spk1 = self.lif1(current1)
+            current2 = self.fc1(spk1)
+            spk2 = self.lif2(current2)
+            spk_rec.append(spk2)
+
+        return torch.stack(spk_rec)
+
+class MIST_CNN_SNN(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        # Initialize layers
+        # in_channels, out_channels, kernel_size, burst param
+        self.conv_burst_1 = nn.Conv2d(1, 12, 5)
+        self.conv_burst_2 = nn.Conv2d(12, 64, 5)
+
+        self.lif1 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif2 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif3 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True, output=True)
+        
+        self.linear_burst_1 = nn.Linear(64*4*4, 10)
+
+    def forward(self, x, num_steps):
+        # Record the final layer
+        spk_rec = []
+        for step in range(num_steps):
+            start = x[:, step]
+
+            current1, threshold = self.conv_burst_1(start)
+            current1 = F.max_pool2d(current1, 2)
+            spk1 = self.lif1(current1)
+            current2, threshold = self.conv_burst_2(spk1)
+            current2 = F.max_pool2d(current2, 2)
+            spk2 = self.lif2(current2)
+            current3, threshold = self.linear_burst_1(spk2.view(batch_size, -1))
+            spk3 = self.lif3(current3)
+            spk_rec.append(spk3)
+
+        return torch.stack(spk_rec)
+
+class MIST_CNN_SNN_2(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        # Initialize layers
+        # in_channels, out_channels, kernel_size, burst param
+        self.conv1 = nn.Conv2d(1, 32, 5)
+        self.conv2 = nn.Conv2d(32, 32, 5)
+
+        self.lif1 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif2 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif3 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True, output=True)
+        
+        self.fc1 = nn.Linear(64*4*4, 10)
+
+    def forward(self, x, num_steps):
+        # Record the final layer
+        spk_rec = []
+        for step in range(num_steps):
+            start = x[:, step]
+
+            current1 = self.conv1(start)
+            current1 = F.avg_pool2d(current1, 2)
+            spk1 = self.lif1(current1)
+            current2 = self.conv2(spk1)
+            current2 = F.avg_pool2d(current2, 2)
+            spk2 = self.lif2(current2)
+            current3 = self.fc1(spk2.view(batch_size, -1))
+            spk3 = self.lif3(current3)
+            spk_rec.append(spk3)
+
+        return torch.stack(spk_rec)
+
+#CNN: Input-32C3-AP2-32C3-AP2-128FC-10
+
+
+class Burst_MNIST_CNN_SNN(nn.Module):
     def __init__(self):
         super().__init__()
 
@@ -13,7 +111,7 @@ class Burst_SNN(nn.Module):
         
         self.linear_burst_1 = connections.Linear_Burst(64*4*4, 10, 2)
 
-    def forward(self, x):
+    def forward(self, x, num_steps):
         # Record the final layer
         spk3_rec = []
         for step in range(num_steps):
@@ -21,22 +119,17 @@ class Burst_SNN(nn.Module):
 
             current1, threshold = self.conv_burst_1(start)
             current1 = F.max_pool2d(current1, 2)
-
             spk1 = self.lif1(current1)
-
             current2, threshold = self.conv_burst_2(spk1)
             current2 = F.max_pool2d(current2, 2)
-
             spk2 = self.lif2(current2)
-
             current3, threshold = self.linear_burst_1(spk2.view(batch_size, -1))
-
-            spk3, _ = self.lif3(current3)
-
+            spk3 = self.lif3(current3)
             spk3_rec.append(spk3)
-            #mem3_rec.append(mem3)
 
         return torch.stack(spk3_rec)
+
+
 
 # Load the network onto CUDA if available
 #burst_net = Burst_SNN().to(device)
