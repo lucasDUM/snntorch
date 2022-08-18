@@ -17,8 +17,8 @@ class MNIST_SNN_TEST(nn.Module):
         self.lif1 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
         self.lif2 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True, output=True)
 
-        self.fc1 = connections.Linear(784, 100)
-        self.fc2 = connections.Linear(100, 10)
+        self.fc1 = connections.Linear_Test(784, 100)
+        self.fc2 = connections.Linear_Test(100, 10)
 
     def forward(self, x):
         # Record the final layer
