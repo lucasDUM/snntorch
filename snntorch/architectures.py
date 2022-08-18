@@ -30,8 +30,7 @@ class MNIST_SNN(nn.Module):
             spk1 = self.lif1(current1)
             print(spk1.size())
             current2 = self.fc2(spk1)
-            spk2 = self.lif2(current2)
-            print(spk2.size())
+            spk2, _ = self.lif2(current2)
             spk_rec.append(spk2)
         return torch.stack(spk_rec)
 class MIST_CNN_SNN(nn.Module):
