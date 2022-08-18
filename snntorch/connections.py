@@ -56,51 +56,6 @@ class Identity(Module):
     def forward(self, input: Tensor) -> Tensor:
         return input
 
-
-class Linear_Test(Module):
-    """Applies a linear transformation with threshold adaption to the incoming data: :math:`y = V_th . xA^T + b`
-    """
-    __constants__ = ['in_features', 'out_features', 'burst_constant']
-    in_features: int
-    out_features: int
-    weight: Tensor
-
-    def __init__(self, in_features: int, out_features: int, bias: bool = True,
-                 device=None, dtype=None) -> None:
-        factory_kwargs = {'device': device, 'dtype': dtype}
-        super(Linear_Test, self).__init__()
-        self.in_features = in_features
-        self.out_features = out_features
-        self.weight = Parameter(torch.empty((out_features, in_features), **factory_kwargs))
-
-        if bias:
-            self.bias = Parameter(torch.empty(out_features, **factory_kwargs))
-        else:
-            self.register_parameter('bias', None)
-        self.reset_parameters()
-
-    def reset_parameters(self) -> None:
-        # Setting a=sqrt(5) in kaiming_uniform is the same as initializing with
-        # uniform(-1/sqrt(in_features), 1/sqrt(in_features)). For details, see
-        # https://github.com/pytorch/pytorch/issues/57109
-        init.kaiming_uniform_(self.weight, a=math.sqrt(5))
-        if self.bias is not None:
-            fan_in, _ = init._calculate_fan_in_and_fan_out(self.weight)
-            bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
-            init.uniform_(self.bias, -bound, bound)
-
-    def forward(self, input: Tensor) -> Tensor:
-        print("VALUE")
-        print(input.size())
-        print(self.out_features)
-        print("VALUE")
-        return F.linear(input, self.weight, self.bias)
-
-    def extra_repr(self) -> str:
-        return 'in_features={}, out_features={}, bias={}'.format(
-            self.in_features, self.out_features, self.bias is not None
-        )
-
 class Linear_Burst(Module):
     """Applies a linear transformation with threshold adaption to the incoming data: :math:`y = V_th . xA^T + b`
     """
