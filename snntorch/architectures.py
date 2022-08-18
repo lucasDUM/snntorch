@@ -12,6 +12,7 @@ class MNIST_SNN(nn.Module):
     def __init__(self, beta, threshold, spike_grad, init_hidden, num_steps, batch_size):
         super().__init__()
         self.num_steps = num_steps
+        self.batch_size = batch_size
         # Initialize layers
         self.lif1 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
         self.lif2 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True, output=True)
@@ -23,7 +24,7 @@ class MNIST_SNN(nn.Module):
         # Record the final layer
         spk_rec = []
         for step in range(self.num_steps):
-            start = x[:, step].view(batch_size, -1)
+            start = x[:, step].view(self.batch_size, -1)
             current1 = self.fc1(start)
             spk1 = self.lif1(current1)
             current2 = self.fc1(spk1)
