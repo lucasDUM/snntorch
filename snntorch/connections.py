@@ -92,6 +92,7 @@ class Linear_Test(Module):
     def forward(self, input: Tensor) -> Tensor:
         print("VALUE")
         print(input.size())
+        print(self.out_features)
         print("VALUE")
         return F.linear(input, self.weight, self.bias)
 
