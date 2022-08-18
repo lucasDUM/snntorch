@@ -90,7 +90,9 @@ class Linear_Test(Module):
             init.uniform_(self.bias, -bound, bound)
 
     def forward(self, input: Tensor) -> Tensor:
+        print("VALUE")
         print(input.size())
+        print("VALUE")
         return F.linear(input, self.weight, self.bias)
 
     def extra_repr(self) -> str:
