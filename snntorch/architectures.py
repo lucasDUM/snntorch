@@ -8,6 +8,31 @@ import torch.nn.functional as F
 import snntorch as snn
 from snntorch import connections
 
+class MNIST_SNN_TEST(nn.Module):
+    def __init__(self, beta, threshold, spike_grad, init_hidden, num_steps, batch_size):
+        super().__init__()
+        self.num_steps = num_steps
+        self.batch_size = batch_size
+        # Initialize layers
+        self.lif1 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif2 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True, output=True)
+
+        self.fc1 = connections.Linear(784, 100)
+        self.fc2 = connections.Linear(100, 10)
+
+    def forward(self, x):
+        # Record the final layer
+        spk_rec = []
+        for step in range(self.num_steps):
+            start = x[:, step].view(self.batch_size, -1)
+            print(start.size())
+            current1 = self.fc1(start)
+            spk1 = self.lif1(current1)
+            current2 = self.fc1(spk1)
+            spk2 = self.lif2(current2)
+            spk_rec.append(spk2)
+
+        return torch.stack(spk_rec)
 class MNIST_SNN(nn.Module):
     def __init__(self, beta, threshold, spike_grad, init_hidden, num_steps, batch_size):
         super().__init__()
@@ -17,7 +42,7 @@ class MNIST_SNN(nn.Module):
         self.lif1 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
         self.lif2 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True, output=True)
 
-        self.fc1 = nn.Linear(784, 100)
+        self.fc1 = nn.Linear((self.batch_size, 784), 100)
         self.fc2 = nn.Linear(100, 10)
 
     def forward(self, x):
@@ -33,7 +58,6 @@ class MNIST_SNN(nn.Module):
             spk_rec.append(spk2)
 
         return torch.stack(spk_rec)
-
 class MIST_CNN_SNN(nn.Module):
     def __init__(self):
         super().__init__()
