@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 from snntorch import spikegen
+from snntorch import connections
 
 dtype = torch.float
 
