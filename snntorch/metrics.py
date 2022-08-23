@@ -6,10 +6,44 @@ from typing import Dict, Iterable, Callable, Any
 
 def spike_rate(count, size, time_steps):
 	return count / (size*time_steps)
-def sparsity(count, size):
-	return count/size
 
-def count_spikes(monitor):
+def average_sparsity_per_timestep_per_image(monitor, batch, time_steps, device, num_hidden):
+    hidden = torch.tensor([]).to(device)
+    output = torch.tensor([]).to(device)
+    count = 0
+    count1 = 0
+    avg_hidden = []
+    avg_output = []
+    for tensor in monitor.records:
+        if str(type(tensor)) == "<class 'torch.Tensor'>":
+            # Hidden layers
+            if count == 0:
+                hidden = tensor
+            else:
+                hidden = hidden + tensor
+            count += 1
+            if count == time_steps*num_hidden:
+                value = (((hidden != 0.).sum(dim=1)/tensor.size()[1]).sum()/batch).item()
+                avg_hidden.append(value)
+                count = 0                      
+        else:
+            # Output layer
+            if count1 == 0:
+                output = tensor[0]
+            else:
+                output = output + tensor[0]
+            count1 += 1
+            if count1 == time_steps:
+                value = (((output != 0.).sum(dim=1)/tensor[0].size()[1]).sum()/batch).item()
+                avg_output.append(value)
+                count1 = 0
+
+    return sum(avg_hidden)/len(avg_hidden), sum(avg_output)/len(avg_output)
+
+def average_spike_per_image(spike_count, total_images):
+    return spike_count/total_images
+
+def total_spike_count(monitor):
     total_spike_count = 0
     for tensor in monitor.records:
         if str(type(tensor)) == "<class 'torch.Tensor'>":
