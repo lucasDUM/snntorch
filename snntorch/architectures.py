@@ -32,6 +32,8 @@ class MNIST_SNN(nn.Module):
             spk2, _ = self.lif2(current2)
             spk_rec.append(spk2)
         return torch.stack(spk_rec)
+
+
 class MIST_CNN_SNN(nn.Module):
     def __init__(self):
         super().__init__()
