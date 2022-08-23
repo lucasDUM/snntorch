@@ -1,6 +1,3 @@
-#######################################################################
-################################ MNIST ################################
-#######################################################################
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -8,7 +5,11 @@ import torch.nn.functional as F
 import snntorch as snn
 from snntorch import connections
 
+#######################################################################
+################################ MNIST ################################
+#######################################################################
 
+# The Remarkable Robustness of Surrogate Gradient Learning for Instilling Complex Function in Spiking Neural Networks
 class MNIST_SNN(nn.Module):
     def __init__(self, beta, threshold, spike_grad, init_hidden, num_steps, batch_size):
         super().__init__()
@@ -33,9 +34,9 @@ class MNIST_SNN(nn.Module):
             spk_rec.append(spk2)
         return torch.stack(spk_rec)
 
-
+# snnTorch
 class MIST_CNN_SNN(nn.Module):
-    def __init__(self):
+    def __init__(self, beta, threshold, spike_grad, init_hidden, num_steps, batch_size):
         super().__init__()
 
         # Initialize layers
@@ -67,8 +68,9 @@ class MIST_CNN_SNN(nn.Module):
 
         return torch.stack(spk_rec)
 
+# Rethinking the performance comparison between SNNS and ANNS
 class MIST_CNN_SNN_2(nn.Module):
-    def __init__(self):
+    def __init__(self, beta, threshold, spike_grad, init_hidden, num_steps, batch_size):
         super().__init__()
 
         # Initialize layers
@@ -80,7 +82,7 @@ class MIST_CNN_SNN_2(nn.Module):
         self.lif2 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
         self.lif3 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True, output=True)
         
-        self.fc1 = nn.Linear(64*4*4, 10)
+        self.fc1 = nn.Linear(32*8*8, 10)
 
     def forward(self, x, num_steps):
         # Record the final layer
@@ -99,8 +101,6 @@ class MIST_CNN_SNN_2(nn.Module):
             spk_rec.append(spk3)
 
         return torch.stack(spk_rec)
-
-#CNN: Input-32C3-AP2-32C3-AP2-128FC-10
 
 
 class Burst_MNIST_CNN_SNN(nn.Module):
