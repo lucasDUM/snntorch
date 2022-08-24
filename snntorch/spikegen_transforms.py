@@ -8,7 +8,7 @@ dtype = torch.float
 # Can handle Image data
 class hybrid_encoding_image(object):
     def __init__(self, separate=True, splits = [0.5, 0.5], encodings=["latency", "rate"], 
-                num_steps=False, time_var_input=False, tau=1, threshold=0.01, clip=False, linear=False, interpolate=False, gain=1):
+                num_steps=False, time_var_input=False, tau=1, threshold=0.01, clip=False, linear=False, interpolate=False, gain=1, N_max=5, T_min=2):
         self.separate = separate
         self.splits = splits
         self.encodings = encodings
@@ -20,10 +20,12 @@ class hybrid_encoding_image(object):
         self.linear = linear
         self.interpolate = interpolate
         self.gain = gain
+        self.N_max = N_max
+        self.T_min = T_min
 
     def __call__(self, data):
         return spikegen.hybrid_encoding_image(data, self.separate, self.splits, self.encodings, self.num_steps, self.time_var_input, 
-                                            self.tau, self.threshold, self.clip, self.linear, self.interpolate, self.gain)
+                                            self.tau, self.threshold, self.clip, self.linear, self.interpolate, self.gain, self.N_max, self.T_min)
 
 
 # Can handle Video data
