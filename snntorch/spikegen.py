@@ -69,6 +69,7 @@ def hybrid_encoding_image(data, separate=True, splits = [0.5, 0.5], encodings=["
     threshold=0.01, clip=False, linear=False, interpolate=False, gain=1, N_max=5, T_min=2):
     """Hybrid encoding scheme of input data, using different encoding method at different time-steps based
     """
+    print(gain)
     if len(splits) != len(encodings):
         raise Exception("Number of encodings does not match splits given")
 
