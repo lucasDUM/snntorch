@@ -97,7 +97,7 @@ def hybrid_encoding_image(data, separate=True, splits = [0.5, 0.5], encodings=["
             elif encodings[steps] == "rate":
                 temp = rate(data, num_steps=data_split[steps], gain=gain)
             elif encodings[steps] == "phase":
-                temp = phase(data, data_split[steps], True)
+                temp = phase_coding(data, data_split[steps], True)
             elif encodings[steps] == "burst":
                 temp = burst_coding(data, N_max, data_split[steps], T_min)
             else:
@@ -112,7 +112,7 @@ def hybrid_encoding_image(data, separate=True, splits = [0.5, 0.5], encodings=["
             elif encodings[steps] == "rate":
                 temp = rate(data, num_steps=data_split[steps], gain=gain)
             elif encodings[steps] == "phase":
-                temp = phase(data, data_split[steps], True)[low_count:high_count]
+                temp = phase_coding(data, data_split[steps], True)[low_count:high_count]
             elif encodings[steps] == "burst":
                 temp = burst_coding(data, N_max, data_split[steps], T_min)[low_count:high_count]
             else:
