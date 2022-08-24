@@ -75,7 +75,7 @@ def hybrid_encoding_image(data, separate=True, splits = [0.5, 0.5], encodings=["
     if sum(splits) != 1:
         raise Exception("Splits do not sum to 1")
 
-    if len(splits) >= num_steps:
+    if len(splits) > num_steps:
         raise Exception("Not enough time steps")
 
     device = data.device

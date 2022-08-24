@@ -10,6 +10,7 @@ from snntorch import connections
 #######################################################################
 
 # The Remarkable Robustness of Surrogate Gradient Learning for Instilling Complex Function in Spiking Neural Networks
+# 1
 class MNIST_SNN(nn.Module):
     def __init__(self, beta, threshold, spike_grad, init_hidden, num_steps, batch_size):
         super().__init__()
@@ -35,6 +36,7 @@ class MNIST_SNN(nn.Module):
         return torch.stack(spk_rec)
 
 # snnTorch
+# 2
 class MIST_CNN_SNN(nn.Module):
     def __init__(self, beta, threshold, spike_grad, init_hidden, num_steps, batch_size):
         super().__init__()
@@ -69,6 +71,7 @@ class MIST_CNN_SNN(nn.Module):
         return torch.stack(spk_rec)
 
 # Rethinking the performance comparison between SNNS and ANNS
+# 3
 class MIST_CNN_SNN_2(nn.Module):
     def __init__(self, beta, threshold, spike_grad, init_hidden, num_steps, batch_size):
         super().__init__()
