@@ -66,7 +66,7 @@ def hybrid_encoding_scaling():
     pass
 
 def hybrid_encoding_image(data, separate=True, splits = [0.5, 0.5], encodings=["latency", "rate"], num_steps=False, time_var_input=False, tau=1, 
-    threshold=0.01, clip=False, linear=False, interpolate=False, gain=1):
+    threshold=0.01, clip=False, linear=False, interpolate=False, gain=1, N_max=5, T_min=2):
     """Hybrid encoding scheme of input data, using different encoding method at different time-steps based
     """
     if len(splits) != len(encodings):
@@ -74,6 +74,9 @@ def hybrid_encoding_image(data, separate=True, splits = [0.5, 0.5], encodings=["
 
     if sum(splits) != 1:
         raise Exception("Splits do not sum to 1")
+
+    if len(splits) >= num_steps:
+        raise Exception("Not enough time steps")
 
     device = data.device
 
@@ -94,9 +97,9 @@ def hybrid_encoding_image(data, separate=True, splits = [0.5, 0.5], encodings=["
             elif encodings[steps] == "rate":
                 temp = rate(data, num_steps=data_split[steps], gain=gain)
             elif encodings[steps] == "phase":
-                pass
+                temp = phase(data, data_split[steps], True)
             elif encodings[steps] == "burst":
-                pass
+                temp = burst_coding(data, N_max, data_split[steps], T_min)
             else:
                 print("Encoding method not recognised")
             encoding_data = torch.cat((encoding_data, temp))
@@ -108,6 +111,10 @@ def hybrid_encoding_image(data, separate=True, splits = [0.5, 0.5], encodings=["
                 temp = latency(data, num_steps=num_steps, normalize=True, linear=linear, tau=tau, interpolate=interpolate, clip=clip, threshold=threshold)[low_count:high_count]
             elif encodings[steps] == "rate":
                 temp = rate(data, num_steps=data_split[steps], gain=gain)
+            elif encodings[steps] == "phase":
+                temp = phase(data, data_split[steps], True)[low_count:high_count]
+            elif encodings[steps] == "burst":
+                temp = burst_coding(data, N_max, data_split[steps], T_min)[low_count:high_count]
             else:
                 print("Encoding method not recognised")
             low_count += data_split[steps] 
