@@ -61,14 +61,14 @@ class MIST_CNN_SNN(nn.Module):
         for step in range(self.num_steps):
             start = x[:, step]
 
-            current1, threshold = self.conv_burst_1(start)
+            current1 = self.conv_burst_1(start)
             current1 = F.max_pool2d(current1, 2)
             spk1 = self.lif1(current1)
-            current2, threshold = self.conv_burst_2(spk1)
+            current2 = self.conv_burst_2(spk1)
             current2 = F.max_pool2d(current2, 2)
             spk2 = self.lif2(current2)
-            current3, threshold = self.linear_burst_1(spk2.view(self.batch_size, -1))
-            spk3 = self.lif3(current3)
+            current3 = self.linear_burst_1(spk2.view(self.batch_size, -1))
+            spk3, _ = self.lif3(current3)
             spk_rec.append(spk3)
 
         return torch.stack(spk_rec)
