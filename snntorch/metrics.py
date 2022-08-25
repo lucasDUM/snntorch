@@ -40,6 +40,57 @@ def average_sparsity_per_timestep_per_image(monitor, batch, time_steps, device, 
 
     return sum(avg_hidden)/len(avg_hidden), sum(avg_output)/len(avg_output)
 
+
+def average_sparsity_per_timestep_per_image_multi_layer(monitor, batch, time_steps, device, num_hidden):
+    hidden = torch.tensor([]).to(device)
+    hidden1 = torch.tensor([]).to(device)
+
+    output = torch.tensor([]).to(device)
+    count = 0
+    count1 = 0
+    avg_hidden = []
+    avg_hidden1 = []
+    avg_output = []
+
+    hidden_count = 0
+    for tensor in monitor.records:
+        if str(type(tensor)) == "<class 'torch.Tensor'>":
+            # Hidden layers
+            if hidden_count == 0:
+                hidden = tensor
+                hidden_count += 1
+            elif hidden_count == 1:
+                hidden1 = tensor
+                hidden_count += 1
+            else:
+                if hidden_count == 2:
+                    hidden = hidden + tensor
+                    hidden_count +=1
+                elif hidden_count == 3:
+                    hidden1 = hidden1 + tensor
+                    hidden_count -= 1
+                #hidden = hidden + tensor
+            count += 1
+            if count == time_steps*num_hidden:
+                value = (((hidden != 0.).sum(dim=1)/tensor.size()[1]).sum()/batch).item()
+                value1 = (((hidden1 != 0.).sum(dim=1)/tensor.size()[1]).sum()/batch).item()
+                avg_hidden.append(value)
+                avg_hidden1.append(value1)
+                count = 0                      
+        else:
+            # Output layer
+            if count1 == 0:
+                output = tensor[0]
+            else:
+                output = output + tensor[0]
+            count1 += 1
+            if count1 == time_steps:
+                value = (((output != 0.).sum(dim=1)/tensor[0].size()[1]).sum()/batch).item()
+                avg_output.append(value)
+                count1 = 0
+
+    return sum(avg_hidden)/len(avg_hidden), sum(avg_hidden1)/len(avg_hidden1), sum(avg_output)/len(avg_output)
+
 def average_spike_per_image(spike_count, total_images):
     return spike_count/total_images
 
