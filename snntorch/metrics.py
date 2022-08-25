@@ -62,18 +62,17 @@ def average_sparsity_per_timestep_per_image_multi_layer(monitor, batch, time_ste
             elif hidden_count == 1:
                 hidden1 = tensor
                 hidden_count += 1
-            else:
-                if hidden_count == 2:
-                    hidden = hidden + tensor
-                    hidden_count +=1
-                elif hidden_count == 3:
-                    hidden1 = hidden1 + tensor
-                    hidden_count -= 1
-                #hidden = hidden + tensor
+            elif hidden_count == 2:
+                hidden = hidden + tensor
+                hidden_count +=1
+            elif hidden_count == 3:
+                hidden1 = hidden1 + tensor
+                hidden_count -= 1
+          
             count += 1
             if count == time_steps*num_hidden:
-                value = (((hidden != 0.).sum(dim=1)/tensor.size()[1]).sum()/batch).item()
-                value1 = (((hidden1 != 0.).sum(dim=1)/tensor.size()[1]).sum()/batch).item()
+                value = (((hidden != 0.).sum(dim=1)/hidden.view(64, -1).size()[1]).sum()/batch).item()
+                value1 = (((hidden1 != 0.).sum(dim=1)/hidden1.view(64, -1).size()[1]).sum()/batch).item()
                 avg_hidden.append(value)
                 avg_hidden1.append(value1)
                 count = 0                      
