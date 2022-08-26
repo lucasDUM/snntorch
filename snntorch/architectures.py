@@ -88,7 +88,7 @@ class MIST_CNN_SNN_2(nn.Module):
         self.lif2 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
         self.lif3 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True, output=True)
         
-        self.fc1 = nn.Linear(32*8*8, 10)
+        self.fc1 = nn.Linear(32*4*4, 10)
 
         self.num_steps = num_steps
         self.batch_size = batch_size
