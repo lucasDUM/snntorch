@@ -90,10 +90,13 @@ class MIST_CNN_SNN_2(nn.Module):
         
         self.fc1 = nn.Linear(32*8*8, 10)
 
-    def forward(self, x, num_steps):
+        self.num_steps = num_steps
+        self.batch_size = batch_size
+
+    def forward(self, x):
         # Record the final layer
         spk_rec = []
-        for step in range(num_steps):
+        for step in range(self.num_steps):
             start = x[:, step]
 
             current1 = self.conv1(start)
@@ -102,7 +105,7 @@ class MIST_CNN_SNN_2(nn.Module):
             current2 = self.conv2(spk1)
             current2 = F.avg_pool2d(current2, 2)
             spk2 = self.lif2(current2)
-            current3 = self.fc1(spk2.view(batch_size, -1))
+            current3 = self.fc1(spk2.view(self.batch_size, -1))
             spk3 = self.lif3(current3)
             spk_rec.append(spk3)
 
