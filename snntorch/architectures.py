@@ -273,8 +273,10 @@ class VGG_9(nn.Module):
 
             spk_rec.append(spk3)
 
-        print(len(spk_rec))
-        return torch.stack(spk_rec, dim=0)
+        #print(len(spk_rec))
+        var = torch.stack(spk_rec)
+        print(var.size())
+        return var
 
 
 # Load the network onto CUDA if available
