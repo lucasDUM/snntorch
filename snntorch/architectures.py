@@ -208,8 +208,8 @@ class VGG_5(nn.Module):
         self.conv1 = nn.Conv2d(1, 64, 3)
         self.conv2 = nn.Conv2d(64, 64, 3)
 
-        self.conv4 = nn.Conv2d(64, 128, 3)
-        self.conv5 = nn.Conv2d(128, 128, 3)
+        self.conv3 = nn.Conv2d(64, 128, 3)
+        self.conv4 = nn.Conv2d(128, 128, 3)
        
         self.fc1 = nn.Linear(128*2*2, 10)
 
