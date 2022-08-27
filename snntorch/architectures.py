@@ -214,7 +214,7 @@ class VGG_9(nn.Module):
        
         self.fc1 = nn.Linear(256*2*2, 1024)
         self.fc2 = nn.Linear(1024, 512)
-        self.fc4 = nn.Linear(512, 10)
+        self.fc3 = nn.Linear(512, 10)
 
         self.lif1 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
         self.lif2 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
