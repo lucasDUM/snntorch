@@ -274,6 +274,8 @@ class VGG_9(nn.Module):
             spk_rec.append(spk3)
 
         #print(len(spk_rec))
+        for t in spk_rec:
+            print(t.size())
         var = torch.stack(spk_rec)
         print(var.size())
         return var
