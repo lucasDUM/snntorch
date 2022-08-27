@@ -211,7 +211,7 @@ class VGG_5(nn.Module):
         self.conv3 = nn.Conv2d(64, 128, 3)
         self.conv4 = nn.Conv2d(128, 128, 3)
        
-        self.fc1 = nn.Linear(128*2*2, 10)
+        self.fc1 = nn.Linear(128*4*4, 10)
 
         self.lif1 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
         self.lif2 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
