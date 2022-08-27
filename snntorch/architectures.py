@@ -269,13 +269,12 @@ class VGG_9(nn.Module):
             spk8 = self.lif8(current8)
 
             current9 = self.fc3(spk8)
-            print(current9.size())
             spk9, _ = self.lif9(current9)
-            print(spk9.size())
 
             spk_rec.append(spk3)
 
-        return torch.stack(spk_rec, dim=1)
+        print(len(spk_rec))
+        return torch.stack(spk_rec, dim=0)
 
 
 # Load the network onto CUDA if available
