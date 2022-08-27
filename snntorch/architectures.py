@@ -222,10 +222,10 @@ class VGG_16(nn.Module):
         self.conv12 = nn.Conv2d(1024, 1024, 3, 1)
         self.conv13 = nn.Conv2d(1024, 1024, 3, 1)
         # MAX POOL
-        self.fc1 = nn.Linear(IDK, 4096)
-        self.fc1 = nn.Linear(4096, 4096)
-        self.fc2 = nn.Linear(4096, 512)
-        self.fc3 = nn.Linear(512, 10)
+        self.fc1 = nn.Linear(1, 4096)
+        self.fc2 = nn.Linear(4096, 4096)
+        self.fc3 = nn.Linear(4096, 512)
+        self.fc4 = nn.Linear(512, 10)
 
         self.lif1 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
         self.lif2 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
