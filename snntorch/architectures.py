@@ -264,8 +264,9 @@ class VGG_9(nn.Module):
             current7 = self.fc1(spk6.view(self.batch_size, -1))
             spk7 = self.lif7(current7)
 
+            #print(spk7.size())
             current8 = self.fc2(spk7)
-            spk8 = self.lif7(current8)
+            spk8 = self.lif8(current8)
 
             current9 = self.fc3(spk8)
             spk9, _ = self.lif9(current9)
