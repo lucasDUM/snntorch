@@ -207,14 +207,18 @@ class VGG_16(nn.Module):
         self.conv1 = nn.Conv2d(1, 64, 3)
         self.conv2 = nn.Conv2d(64, 64, 3)
         # MAX POOL
+
         self.conv3 = nn.Conv2d(64, 128, 3)
         self.conv4 = nn.Conv2d(128, 128, 3)
-        # MAX POOL
         self.conv5 = nn.Conv2d(128, 256, 3)
+
+        # MAX POOL
         self.conv6 = nn.Conv2d(256, 256, 3)
         self.conv7 = nn.Conv2d(256, 256, 3)
-        # MAX POOL
         self.conv8 = nn.Conv2d(256, 512, 3)
+
+        # MAX POOL
+        
         self.conv9 = nn.Conv2d(512, 512, 3)
         self.conv10 = nn.Conv2d(512, 512, 3)
         # MAX POOL
@@ -268,12 +272,13 @@ class VGG_16(nn.Module):
 
             # BLOCK 4
             current4 = self.conv4(spk3)
-            current4 = F.max_pool2d(current4, 2)
             spk4 = self.lif4(current4)
 
             # BLOCK 5
             current5 = self.conv5(spk4)
+            current5 = F.max_pool2d(current5, 2)
             spk5 = self.lif5(current5)
+            print(spk5.size())
 
             # BLOCK 6
             current6 = self.conv6(spk5)
@@ -281,36 +286,37 @@ class VGG_16(nn.Module):
 
             # BLOCK 7
             current7 = self.conv7(spk6)
-            current7 = F.max_pool2d(current7, 2)
             spk7 = self.lif7(current7)
 
-            # BLOCK 8
+             # BLOCK 8
             current8 = self.conv8(spk7)
+            current8 = F.max_pool2d(current8, 2)
             spk8 = self.lif8(current8)
 
+            print(spk8.size())
             # BLOCK 9
-            current9 = self.conv9(spk8)
-            spk9 = self.lif9(current9)
+            #current9 = self.conv9(spk8)
+            #spk9 = self.lif9(current9)
 
             # BLOCK 10
-            current10 = self.conv10(spk9)
-            current10 = F.max_pool2d(current10, 2)
-            spk10 = self.lif10(current10)
+            #current10 = self.conv10(spk9)
+            #current10 = F.max_pool2d(current10, 2)
+            #spk10 = self.lif10(current10)
 
             # BLOCK 11
-            current11 = self.conv11(spk10)
-            spk11 = self.lif11(current11)
+            #current11 = self.conv11(spk10)
+            #spk11 = self.lif11(current11)
 
             # BLOCK 12
-            current12 = self.conv12(spk11)
-            spk12 = self.lif12(current12)
+            #current12 = self.conv12(spk11)
+            #spk12 = self.lif12(current12)
 
             # BLOCK 13
-            current13 = self.conv8(spk12)
-            current13 = F.max_pool2d(current13, 2)
-            spk13 = self.lif9(current13)
+            #current13 = self.conv8(spk12)
+            #current13 = F.max_pool2d(current13, 2)
+            #spk13 = self.lif9(current13)
 
-            print(spk13.size())
+            print(spk10.size())
             raise Exception("PLS STOP HERE")
             # BLOCK 14
             # BLOCK 15
