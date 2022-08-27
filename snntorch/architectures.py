@@ -254,12 +254,78 @@ class VGG_16(nn.Module):
         for step in range(self.num_steps):
             start = x[:, step]
 
+            # BLOCK 1
             current1 = self.conv1(start)
-            current1 = F.avg_pool2d(current1, 2)
+            current1 = F.max_pool2d(current1, 2)
             spk1 = self.lif1(current1)
+
+            # BLOCK 2
             current2 = self.conv2(spk1)
-            current2 = F.avg_pool2d(current2, 2)
+            current2 = F.max_pool2d(current2, 2)
             spk2 = self.lif2(current2)
+
+            # BLOCK 3
+            current3 = self.conv3(spk2)
+            current3 = F.max_pool2d(current3, 2)
+            spk3 = self.lif3(current3)
+
+            # BLOCK 4
+            current4 = self.conv4(spk3)
+            current4 = F.max_pool2d(current4, 2)
+            spk4 = self.lif4(current4)
+
+            # BLOCK 5
+            current5 = self.conv5(spk4)
+            current5 = F.max_pool2d(current5, 2)
+            spk5 = self.lif5(current5)
+
+            # BLOCK 6
+            current6 = self.conv6(spk5)
+            current6 = F.max_pool2d(current6, 2)
+            spk6 = self.lif6(current6)
+
+            # BLOCK 7
+            current7 = self.conv7(spk6)
+            current7 = F.max_pool2d(current7, 2)
+            spk7 = self.lif7(current7)
+
+            # BLOCK 8
+            current8 = self.conv8(spk7)
+            current8 = F.max_pool2d(current8, 2)
+            spk8 = self.lif8(current8)
+
+            # BLOCK 9
+            current9 = self.conv9(spk8)
+            current9 = F.max_pool2d(current9, 2)
+            spk9 = self.lif9(current9)
+
+            # BLOCK 10
+            current10 = self.conv10(spk9)
+            current10 = F.max_pool2d(current10, 2)
+            spk10 = self.lif10(current10)
+
+            # BLOCK 11
+            current11 = self.conv11(spk10)
+            current11 = F.max_pool2d(current11, 2)
+            spk11 = self.lif11(current11)
+
+            # BLOCK 12
+            current12 = self.conv12(spk11)
+            current12 = F.max_pool2d(current12, 2)
+            spk12 = self.lif12(current12)
+
+            # BLOCK 13
+            current13 = self.conv8(spk12)
+            current13 = F.max_pool2d(current13, 2)
+            spk13 = self.lif9(current13)
+
+            print(spk13.size())
+            raise Exception("PLS STOP HERE")
+            # BLOCK 14
+            # BLOCK 15
+            # BLOCK 16
+
+
             current3 = self.fc1(spk2.view(self.batch_size, -1))
             spk3, _ = self.lif3(current3)
             spk_rec.append(spk3)
