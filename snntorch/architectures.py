@@ -146,6 +146,126 @@ class Burst_MNIST_CNN_SNN(nn.Module):
         return torch.stack(spk3_rec)
 
 
+# SIMLE MODEL
+# CNN 1: Input-32C3-AP2-32C3-AP2-128FC-10
+
+# Revisiting Batch Normalization for Training Low-Latency Deep Spiking Neural Networks From Scratch
+# VGG9
+
+# Rethinking the performance comparison between SNNS and ANNS
+class CIFAR_CNN_SNN(nn.Module):
+    def __init__(self, beta, threshold, spike_grad, init_hidden, num_steps, batch_size):
+        super().__init__()
+
+        # Initialize layers
+        # in_channels, out_channels, kernel_size, burst param
+        self.conv1 = nn.Conv2d(1, 32, 5)
+        self.conv2 = nn.Conv2d(32, 32, 5)
+
+        self.lif1 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif2 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif3 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True, output=True)
+        
+        self.fc1 = nn.Linear(32*4*4, 10)
+
+        self.num_steps = num_steps
+        self.batch_size = batch_size
+
+    def forward(self, x):
+        # Record the final layer
+        spk_rec = []
+        for step in range(self.num_steps):
+            start = x[:, step]
+
+            current1 = self.conv1(start)
+            current1 = F.avg_pool2d(current1, 2)
+            spk1 = self.lif1(current1)
+            current2 = self.conv2(spk1)
+            current2 = F.avg_pool2d(current2, 2)
+            spk2 = self.lif2(current2)
+            current3 = self.fc1(spk2.view(self.batch_size, -1))
+            spk3, _ = self.lif3(current3)
+            spk_rec.append(spk3)
+
+        return torch.stack(spk_rec)
+
+# Temporal-Coded Deep Spiking Neural Network with Easy Training and Robust Performance
+# CIFAR-10 SpikingVGG16: SCNN(3,64,1) → SCNN(3,64,1) → 
+
+#MP(2) → SCNN(3,128,1) → SCNN(3,128,1)
+
+#→ MP(2) → SCNN(3,256,1) → SCNN(3,256,1) → SCNN(3,256,1) → MP(2) → SCNN(3,512,1)
+
+#→ SCNN(3,512,1) → SCNN(3,512,1) → MP(2) → SCNN(3,1024,1) → SCNN(3,1024,1)
+#→ SCNN(3,1024,1) → MP(2) → FC(4096) → FC(4096) → FC(512) → FC(10)
+class VGG_16(nn.Module):
+    def __init__(self, beta, threshold, spike_grad, init_hidden, num_steps, batch_size):
+        super().__init__()
+
+        # Initialize layers
+        # in_channels, out_channels, kernel_size, stride
+        self.conv1 = nn.Conv2d(1, 64, 3, 1)
+        self.conv2 = nn.Conv2d(64, 64, 3, 1)
+        # MAX POOL
+        self.conv3 = nn.Conv2d(64, 128, 3, 1)
+        self.conv4 = nn.Conv2d(128, 128, 3, 1)
+        # MAX POOL
+        self.conv5 = nn.Conv2d(128, 256, 3, 1)
+        self.conv6 = nn.Conv2d(256, 256, 3, 1)
+        self.conv7 = nn.Conv2d(256, 256, 3, 1)
+        # MAX POOL
+        self.conv8 = nn.Conv2d(256, 512, 3, 1)
+        self.conv9 = nn.Conv2d(512, 512, 3, 1)
+        self.conv10 = nn.Conv2d(512, 512, 3, 1)
+        # MAX POOL
+        self.conv11 = nn.Conv2d(512, 1024, 3, 1)
+        self.conv12 = nn.Conv2d(1024, 1024, 3, 1)
+        self.conv13 = nn.Conv2d(1024, 1024, 3, 1)
+        # MAX POOL
+        self.fc1 = nn.Linear(IDK, 4096)
+        self.fc1 = nn.Linear(4096, 4096)
+        self.fc2 = nn.Linear(4096, 512)
+        self.fc3 = nn.Linear(512, 10)
+
+        self.lif1 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif2 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif3 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif4 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif5 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif6 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif7 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif8 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif9 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif10 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif11 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif12 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif13 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif14 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif15 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif16 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True, output=True)
+        
+
+        self.num_steps = num_steps
+        self.batch_size = batch_size
+
+    def forward(self, x):
+        # Record the final layer
+        spk_rec = []
+        for step in range(self.num_steps):
+            start = x[:, step]
+
+            current1 = self.conv1(start)
+            current1 = F.avg_pool2d(current1, 2)
+            spk1 = self.lif1(current1)
+            current2 = self.conv2(spk1)
+            current2 = F.avg_pool2d(current2, 2)
+            spk2 = self.lif2(current2)
+            current3 = self.fc1(spk2.view(self.batch_size, -1))
+            spk3, _ = self.lif3(current3)
+            spk_rec.append(spk3)
+
+        return torch.stack(spk_rec)
+
 
 # Load the network onto CUDA if available
 #burst_net = Burst_SNN().to(device)
@@ -156,8 +276,8 @@ class Burst_MNIST_CNN_SNN(nn.Module):
 # MNIST 
 #CNN: Input-32C3-AP2-32C3-AP2-128FC-10
 # CIFAR10 
-#CNN: Input-64C3-AP2-128C3-128C3-AP2-256FC-10
-# N-MNIST
+#CNN: 
+# N-MNISTInput-64C3-AP2-128C3-128C3-AP2-256FC-10
 
 # DVS-CIFAR10
 #CNN: Input-64C3-AP2-128C3-AP2-256FC-10
@@ -188,7 +308,7 @@ class Burst_MNIST_CNN_SNN(nn.Module):
 #https://github.com/zbs881314/Temporal-Coded-Deep-SNN
 
 # SCNN(5,32,2) → SCNN(5,16,2) → FC(10)
-#CIFAR-10 SpikingVGG16: SCNN(3,64,1) → SCNN(3,64,1) → MP(2) → SCNN(3,128,1) → SCNN(3,128,1)
+# CIFAR-10 SpikingVGG16: SCNN(3,64,1) → SCNN(3,64,1) → MP(2) → SCNN(3,128,1) → SCNN(3,128,1)
 #→ MP(2) → SCNN(3,256,1) → SCNN(3,256,1) → SCNN(3,256,1) → MP(2) → SCNN(3,512,1)
 #→ SCNN(3,512,1) → SCNN(3,512,1) → MP(2) → SCNN(3,1024,1) → SCNN(3,1024,1)
 #→ SCNN(3,1024,1) → MP(2) → FC(4096) → FC(4096) → FC(512) → FC(10)
