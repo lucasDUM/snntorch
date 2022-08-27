@@ -204,23 +204,23 @@ class VGG_16(nn.Module):
 
         # Initialize layers
         # in_channels, out_channels, kernel_size, stride
-        self.conv1 = nn.Conv2d(1, 64, 3, 1)
-        self.conv2 = nn.Conv2d(64, 64, 3, 1)
+        self.conv1 = nn.Conv2d(1, 64, 3)
+        self.conv2 = nn.Conv2d(64, 64, 3)
         # MAX POOL
-        self.conv3 = nn.Conv2d(64, 128, 3, 1)
-        self.conv4 = nn.Conv2d(128, 128, 3, 1)
+        self.conv3 = nn.Conv2d(64, 128, 3)
+        self.conv4 = nn.Conv2d(128, 128, 3)
         # MAX POOL
-        self.conv5 = nn.Conv2d(128, 256, 3, 1)
-        self.conv6 = nn.Conv2d(256, 256, 3, 1)
-        self.conv7 = nn.Conv2d(256, 256, 3, 1)
+        self.conv5 = nn.Conv2d(128, 256, 3)
+        self.conv6 = nn.Conv2d(256, 256, 3)
+        self.conv7 = nn.Conv2d(256, 256, 3)
         # MAX POOL
-        self.conv8 = nn.Conv2d(256, 512, 3, 1)
-        self.conv9 = nn.Conv2d(512, 512, 3, 1)
-        self.conv10 = nn.Conv2d(512, 512, 3, 1)
+        self.conv8 = nn.Conv2d(256, 512, 3)
+        self.conv9 = nn.Conv2d(512, 512, 3)
+        self.conv10 = nn.Conv2d(512, 512, 3)
         # MAX POOL
-        self.conv11 = nn.Conv2d(512, 1024, 3, 1)
-        self.conv12 = nn.Conv2d(1024, 1024, 3, 1)
-        self.conv13 = nn.Conv2d(1024, 1024, 3, 1)
+        self.conv11 = nn.Conv2d(512, 1024, 3)
+        self.conv12 = nn.Conv2d(1024, 1024, 3)
+        self.conv13 = nn.Conv2d(1024, 1024, 3)
         # MAX POOL
         self.fc1 = nn.Linear(4096, 4096)
         self.fc2 = nn.Linear(4096, 4096)
