@@ -198,6 +198,62 @@ class CIFAR_CNN_SNN(nn.Module):
 
 #→ SCNN(3,512,1) → SCNN(3,512,1) → MP(2) → SCNN(3,1024,1) → SCNN(3,1024,1)
 #→ SCNN(3,1024,1) → MP(2) → FC(4096) → FC(4096) → FC(512) → FC(10)
+
+class VGG_5(nn.Module):
+    def __init__(self, beta, threshold, spike_grad, init_hidden, num_steps, batch_size):
+        super().__init__()
+
+        # Initialize layers
+        # in_channels, out_channels, kernel_size, stride
+        self.conv1 = nn.Conv2d(1, 64, 3)
+        self.conv2 = nn.Conv2d(64, 64, 3)
+
+        self.conv4 = nn.Conv2d(64, 128, 3)
+        self.conv5 = nn.Conv2d(128, 128, 3)
+       
+        self.fc1 = nn.Linear(128*2*2, 10)
+
+        self.lif1 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif2 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif3 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif4 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
+        self.lif5 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True, output=True)
+        
+
+        self.num_steps = num_steps
+        self.batch_size = batch_size
+
+    def forward(self, x):
+        # Record the final layer
+        spk_rec = []
+        for step in range(self.num_steps):
+            start = x[:, step]
+            # BLOCK 1
+            current1 = self.conv1(start)
+            spk1 = self.lif1(current1)
+
+            # BLOCK 2
+            current2 = self.conv2(spk1)
+            current2 = F.max_pool2d(current2, 2)
+            spk2 = self.lif2(current2)
+
+            # BLOCK 3
+            current3 = self.conv3(spk2)
+            spk3 = self.lif3(current3)
+
+            # BLOCK 4
+            current4 = self.conv4(spk3)
+            current4 = F.max_pool2d(current4, 2)
+            spk4 = self.lif4(current4)
+
+            # BLOCK 5
+            current5 = self.fc1(spk4.view(self.batch_size, -1))
+            spk5, _ = self.lif5(current5)
+
+            spk_rec.append(spk5)
+
+        return torch.stack(spk_rec)
+
 class VGG_9(nn.Module):
     def __init__(self, beta, threshold, spike_grad, init_hidden, num_steps, batch_size):
         super().__init__()
