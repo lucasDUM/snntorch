@@ -253,6 +253,7 @@ class VGG_16(nn.Module):
         spk_rec = []
         for step in range(self.num_steps):
             start = x[:, step]
+            print(start.size())
 
             # BLOCK 1
             current1 = self.conv1(start)
