@@ -265,6 +265,7 @@ class VGG_16(nn.Module):
             current2 = self.conv2(spk1)
             current2 = F.max_pool2d(current2, 2)
             spk2 = self.lif2(current2)
+            print(spk2.size())
 
             # BLOCK 3
             current3 = self.conv3(spk2)
@@ -316,7 +317,7 @@ class VGG_16(nn.Module):
             #current13 = F.max_pool2d(current13, 2)
             #spk13 = self.lif9(current13)
 
-            print(spk10.size())
+            #print(spk10.size())
             raise Exception("PLS STOP HERE")
             # BLOCK 14
             # BLOCK 15
