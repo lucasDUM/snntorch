@@ -253,11 +253,8 @@ class VGG_16(nn.Module):
         spk_rec = []
         for step in range(self.num_steps):
             start = x[:, step]
-            print(start.size())
-
             # BLOCK 1
             current1 = self.conv1(start)
-            current1 = F.max_pool2d(current1, 2)
             spk1 = self.lif1(current1)
 
             # BLOCK 2
@@ -267,7 +264,6 @@ class VGG_16(nn.Module):
 
             # BLOCK 3
             current3 = self.conv3(spk2)
-            current3 = F.max_pool2d(current3, 2)
             spk3 = self.lif3(current3)
 
             # BLOCK 4
@@ -277,12 +273,10 @@ class VGG_16(nn.Module):
 
             # BLOCK 5
             current5 = self.conv5(spk4)
-            current5 = F.max_pool2d(current5, 2)
             spk5 = self.lif5(current5)
 
             # BLOCK 6
             current6 = self.conv6(spk5)
-            current6 = F.max_pool2d(current6, 2)
             spk6 = self.lif6(current6)
 
             # BLOCK 7
@@ -292,12 +286,10 @@ class VGG_16(nn.Module):
 
             # BLOCK 8
             current8 = self.conv8(spk7)
-            current8 = F.max_pool2d(current8, 2)
             spk8 = self.lif8(current8)
 
             # BLOCK 9
             current9 = self.conv9(spk8)
-            current9 = F.max_pool2d(current9, 2)
             spk9 = self.lif9(current9)
 
             # BLOCK 10
@@ -307,12 +299,10 @@ class VGG_16(nn.Module):
 
             # BLOCK 11
             current11 = self.conv11(spk10)
-            current11 = F.max_pool2d(current11, 2)
             spk11 = self.lif11(current11)
 
             # BLOCK 12
             current12 = self.conv12(spk11)
-            current12 = F.max_pool2d(current12, 2)
             spk12 = self.lif12(current12)
 
             # BLOCK 13
