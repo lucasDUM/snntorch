@@ -207,26 +207,13 @@ class VGG_9(nn.Module):
         self.conv1 = nn.Conv2d(1, 64, 3)
         self.conv2 = nn.Conv2d(64, 64, 3)
         self.conv3 = nn.Conv2d(64, 128, 3)
-        # MAX POOL
+
         self.conv4 = nn.Conv2d(128, 128, 3)
         self.conv5 = nn.Conv2d(128, 256, 3)
         self.conv6 = nn.Conv2d(256, 256, 3)
-        # MAX POOL
-
-        #self.conv7 = nn.Conv2d(256, 256, 3)
-        #self.conv8 = nn.Conv2d(256, 512, 3)
-
-        # MAX POOL
-        #self.conv9 = nn.Conv2d(512, 512, 3)
-        #self.conv10 = nn.Conv2d(512, 512, 3)
-        # MAX POOL
-        #self.conv11 = nn.Conv2d(512, 1024, 3)
-        #self.conv12 = nn.Conv2d(1024, 1024, 3)
-        #self.conv13 = nn.Conv2d(1024, 1024, 3)
-        # MAX POOL
-        self.fc1 = nn.Linear(4096, 512)
-        #self.fc2 = nn.Linear(4096, 4096)
-        #self.fc3 = nn.Linear(4096, 512)
+       
+        self.fc1 = nn.Linear(256*2*2, 1024)
+        self.fc2 = nn.Linear(1024, 512)
         self.fc4 = nn.Linear(512, 10)
 
         self.lif1 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
@@ -237,14 +224,7 @@ class VGG_9(nn.Module):
         self.lif6 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
         self.lif7 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
         self.lif8 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
-        self.lif9 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
-        self.lif10 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
-        self.lif11 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
-        self.lif12 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
-        self.lif13 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
-        self.lif14 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
-        self.lif15 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
-        self.lif16 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True, output=True)
+        self.lif9 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True, output=True)
         
 
         self.num_steps = num_steps
@@ -280,52 +260,16 @@ class VGG_9(nn.Module):
             current6 = self.conv6(spk5)
             current6 = F.max_pool2d(current6, 2)
             spk6 = self.lif6(current6)
-            print(spk6.size())
 
+            current7 = self.fc1(spk6.view(self.batch_size, -1))
+            spk7 = self.lif7(current7)
 
+            current8 = self.fc2(spk7)
+            spk8 = self.lif7(current8)
 
+            current9 = self.fc3(spk8)
+            spk9, _ = self.lif9(current9)
 
-            # BLOCK 7
-            #current7 = self.conv7(spk6)
-            #spk7 = self.lif7(current7)
-
-             # BLOCK 8
-            #current8 = self.conv8(spk7)
-            #current8 = F.max_pool2d(current8, 2)
-            #spk8 = self.lif8(current8)
-
-            #print(spk8.size())
-            # BLOCK 9
-            #current9 = self.conv9(spk8)
-            #spk9 = self.lif9(current9)
-
-            # BLOCK 10
-            #current10 = self.conv10(spk9)
-            #current10 = F.max_pool2d(current10, 2)
-            #spk10 = self.lif10(current10)
-
-            # BLOCK 11
-            #current11 = self.conv11(spk10)
-            #spk11 = self.lif11(current11)
-
-            # BLOCK 12
-            #current12 = self.conv12(spk11)
-            #spk12 = self.lif12(current12)
-
-            # BLOCK 13
-            #current13 = self.conv8(spk12)
-            #current13 = F.max_pool2d(current13, 2)
-            #spk13 = self.lif9(current13)
-
-            #print(spk10.size())
-            raise Exception("PLS STOP HERE")
-            # BLOCK 14
-            # BLOCK 15
-            # BLOCK 16
-
-
-            current3 = self.fc1(spk2.view(self.batch_size, -1))
-            spk3, _ = self.lif3(current3)
             spk_rec.append(spk3)
 
         return torch.stack(spk_rec)
