@@ -198,7 +198,7 @@ class CIFAR_CNN_SNN(nn.Module):
 
 #→ SCNN(3,512,1) → SCNN(3,512,1) → MP(2) → SCNN(3,1024,1) → SCNN(3,1024,1)
 #→ SCNN(3,1024,1) → MP(2) → FC(4096) → FC(4096) → FC(512) → FC(10)
-class VGG_16(nn.Module):
+class VGG_9(nn.Module):
     def __init__(self, beta, threshold, spike_grad, init_hidden, num_steps, batch_size):
         super().__init__()
 
@@ -206,29 +206,27 @@ class VGG_16(nn.Module):
         # in_channels, out_channels, kernel_size, stride
         self.conv1 = nn.Conv2d(1, 64, 3)
         self.conv2 = nn.Conv2d(64, 64, 3)
-        # MAX POOL
-
         self.conv3 = nn.Conv2d(64, 128, 3)
+        # MAX POOL
         self.conv4 = nn.Conv2d(128, 128, 3)
         self.conv5 = nn.Conv2d(128, 256, 3)
-
-        # MAX POOL
         self.conv6 = nn.Conv2d(256, 256, 3)
-        self.conv7 = nn.Conv2d(256, 256, 3)
-        self.conv8 = nn.Conv2d(256, 512, 3)
+        # MAX POOL
+
+        #self.conv7 = nn.Conv2d(256, 256, 3)
+        #self.conv8 = nn.Conv2d(256, 512, 3)
 
         # MAX POOL
-        
-        self.conv9 = nn.Conv2d(512, 512, 3)
-        self.conv10 = nn.Conv2d(512, 512, 3)
+        #self.conv9 = nn.Conv2d(512, 512, 3)
+        #self.conv10 = nn.Conv2d(512, 512, 3)
         # MAX POOL
-        self.conv11 = nn.Conv2d(512, 1024, 3)
-        self.conv12 = nn.Conv2d(1024, 1024, 3)
-        self.conv13 = nn.Conv2d(1024, 1024, 3)
+        #self.conv11 = nn.Conv2d(512, 1024, 3)
+        #self.conv12 = nn.Conv2d(1024, 1024, 3)
+        #self.conv13 = nn.Conv2d(1024, 1024, 3)
         # MAX POOL
-        self.fc1 = nn.Linear(4096, 4096)
-        self.fc2 = nn.Linear(4096, 4096)
-        self.fc3 = nn.Linear(4096, 512)
+        self.fc1 = nn.Linear(4096, 512)
+        #self.fc2 = nn.Linear(4096, 4096)
+        #self.fc3 = nn.Linear(4096, 512)
         self.fc4 = nn.Linear(512, 10)
 
         self.lif1 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True)
@@ -263,12 +261,11 @@ class VGG_16(nn.Module):
 
             # BLOCK 2
             current2 = self.conv2(spk1)
-            current2 = F.max_pool2d(current2, 2)
             spk2 = self.lif2(current2)
-            print(spk2.size())
 
             # BLOCK 3
             current3 = self.conv3(spk2)
+            current3 = F.max_pool2d(current3, 2)
             spk3 = self.lif3(current3)
 
             # BLOCK 4
@@ -277,24 +274,27 @@ class VGG_16(nn.Module):
 
             # BLOCK 5
             current5 = self.conv5(spk4)
-            current5 = F.max_pool2d(current5, 2)
             spk5 = self.lif5(current5)
-            print(spk5.size())
 
             # BLOCK 6
             current6 = self.conv6(spk5)
+            current6 = F.max_pool2d(current6, 2)
             spk6 = self.lif6(current6)
+            print(spk6.size())
+
+
+
 
             # BLOCK 7
-            current7 = self.conv7(spk6)
-            spk7 = self.lif7(current7)
+            #current7 = self.conv7(spk6)
+            #spk7 = self.lif7(current7)
 
              # BLOCK 8
-            current8 = self.conv8(spk7)
-            current8 = F.max_pool2d(current8, 2)
-            spk8 = self.lif8(current8)
+            #current8 = self.conv8(spk7)
+            #current8 = F.max_pool2d(current8, 2)
+            #spk8 = self.lif8(current8)
 
-            print(spk8.size())
+            #print(spk8.size())
             # BLOCK 9
             #current9 = self.conv9(spk8)
             #spk9 = self.lif9(current9)
