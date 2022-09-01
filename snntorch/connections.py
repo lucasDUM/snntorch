@@ -75,6 +75,7 @@ class Linear_Burst(Module):
         self.weight = Parameter(torch.empty((out_features, in_features), **factory_kwargs))
         self.prev_spike = torch.tensor(0)
         self.First = True
+        self.device = device
 
         if bias:
             self.bias = Parameter(torch.empty(out_features, **factory_kwargs))
@@ -113,7 +114,7 @@ class Linear_Burst(Module):
             self.First=True
         # Add burst re_weighting
         threshold = self.burst_function(self.burst_constant, input)
-        return F.linear(input*threshold, self.weight, self.bias), threshold
+        return F.linear(input*threshold.to(device), self.weight, self.bias), threshold
 
     def extra_repr(self) -> str:
         return 'in_features={}, out_features={}, bias={}'.format(

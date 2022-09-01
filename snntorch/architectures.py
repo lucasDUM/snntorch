@@ -112,7 +112,7 @@ class MIST_CNN_SNN_2(nn.Module):
         return torch.stack(spk_rec)
 
 class MNIST_SNN_BURST(nn.Module):
-    def __init__(self, beta, threshold, spike_grad, init_hidden, num_steps, batch_size, burst):
+    def __init__(self, beta, threshold, spike_grad, init_hidden, num_steps, batch_size, burst, device):
         super().__init__()
         self.num_steps = num_steps
         self.batch_size = batch_size
