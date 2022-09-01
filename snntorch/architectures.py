@@ -133,7 +133,7 @@ class MNIST_SNN_BURST(nn.Module):
             start = x[:, step].view(self.batch_size, -1)
             current1 = self.fc1(step, start)
             spk1 = self.lif1(current1)
-            current2 = self.fc2(spk1)
+            current2 = self.fc2(step, spk1)
             spk2, _ = self.lif2(current2)
             spk_rec.append(spk2)
         return torch.stack(spk_rec)
