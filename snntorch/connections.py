@@ -114,7 +114,7 @@ class Linear_Burst(Module):
             self.First=True
         # Add burst re_weighting
         threshold = self.burst_function(self.burst_constant, input)
-        return F.linear(input*threshold.to(device), self.weight, self.bias), threshold
+        return F.linear(input*threshold.to(self.device), self.weight, self.bias), threshold
 
     def extra_repr(self) -> str:
         return 'in_features={}, out_features={}, bias={}'.format(
