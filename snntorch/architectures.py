@@ -121,8 +121,10 @@ class MNIST_SNN_BURST(nn.Module):
         self.lif2 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True, output=True)
 
         #self.fc1 = nn.Linear(784, 100)
+        print(burst)
         self.fc1 = connections.Linear_Burst(784, 100, burst, device=device)
-        self.fc2 = nn.Linear(100, 10)
+        #self.fc2 = nn.Linear(100, 10)
+        self.fc2 = connections.Linear_Burst(100, 10, burst, device=device)
 
     def forward(self, x):
         # Record the final layer
