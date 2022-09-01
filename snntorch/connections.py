@@ -128,13 +128,14 @@ class Linear_Phase(Module):
     out_features: int
     weight: Tensor
 
-    def __init__(self, in_features: int, out_features: int, bias: bool = True,
+    def __init__(self, in_features: int, out_features: int, num_steps: int, bias: bool = True,
                  device=None, dtype=None) -> None:
         factory_kwargs = {'device': device, 'dtype': dtype}
         super(Linear_Phase, self).__init__()
         self.in_features = in_features
         self.out_features = out_features
         self.weight = Parameter(torch.empty((out_features, in_features), **factory_kwargs))
+        self.num_steps = num_steps
 
         if bias:
             self.bias = Parameter(torch.empty(out_features, **factory_kwargs))
@@ -152,7 +153,7 @@ class Linear_Phase(Module):
             bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
             init.uniform_(self.bias, -bound, bound)
 
-    def create_signal(self, size, pattern, premade, amplitude=1, offset=0):
+    def create_signal(self, size=0, pattern=False, premade="simple1", amplitude=1, offset=0):
         if pattern:
             if len(pattern) > size:
                 pattern = pattern[:, size]
@@ -175,9 +176,9 @@ class Linear_Phase(Module):
 
         return phase
 
-    def forward(self, step, num_steps, input: Tensor) -> Tensor:
+    def forward(self, input: Tensor) -> Tensor:
         # Phase function
-        threshold = self.create_signal(size=num_steps, pattern=False, premade="simple1")[step]
+        threshold = self.create_signal(size=self.num_steps, pattern=False, premade="simple1")[step]
         # Add phase re_weighting here
         return F.linear(input * threshold, self.weight, self.bias)
 
