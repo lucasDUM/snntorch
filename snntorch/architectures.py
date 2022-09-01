@@ -112,7 +112,7 @@ class MIST_CNN_SNN_2(nn.Module):
         return torch.stack(spk_rec)
 
 class MNIST_SNN_BURST(nn.Module):
-    def __init__(self, beta, threshold, spike_grad, init_hidden, num_steps, batch_size):
+    def __init__(self, beta, threshold, spike_grad, init_hidden, num_steps, batch_size, burst):
         super().__init__()
         self.num_steps = num_steps
         self.batch_size = batch_size
@@ -121,7 +121,7 @@ class MNIST_SNN_BURST(nn.Module):
         self.lif2 = snn.Leaky(beta=beta, spike_grad=spike_grad, init_hidden=True, output=True)
 
         #self.fc1 = nn.Linear(784, 100)
-        self.fc1 = connections.Linear_Burst(784, 100, 2)
+        self.fc1 = connections.Linear_Burst(784, 100, burst)
         self.fc2 = nn.Linear(100, 10)
 
     def forward(self, x):
