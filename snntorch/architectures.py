@@ -157,9 +157,9 @@ class MNIST_SNN_PHASE(nn.Module):
         spk_rec = []
         for step in range(self.num_steps):
             start = x[:, step].view(self.batch_size, -1)
-            current1 = self.fc1(step, start)
+            current1 = self.fc1(start)
             spk1 = self.lif1(current1)
-            current2 = self.fc2(step, spk1)
+            current2 = self.fc2(spk1)
             spk2, _ = self.lif2(current2)
             spk_rec.append(spk2)
         return torch.stack(spk_rec)
