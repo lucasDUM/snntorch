@@ -93,7 +93,6 @@ class Linear_Burst(Module):
             init.uniform_(self.bias, -bound, bound)
 
     def burst_function(self, burst_constant, input_):
-        #print(torch.cuda.get_device_name(0))
         self.prev_spike = input_
         if self.First:
             self.First = False
